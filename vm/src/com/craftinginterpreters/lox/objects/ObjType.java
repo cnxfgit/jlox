@@ -4,7 +4,7 @@ package com.craftinginterpreters.lox.objects;
  * @author hlx
  * @date 2023-07-27
  */
-public enum ObjTypeEnum {
+public enum ObjType {
     BOUND_METHOD,   // 绑定方法对象
     CLASS,          // 类对象
     CLOSURE,        // 闭包对象

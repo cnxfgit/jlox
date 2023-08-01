@@ -19,7 +19,7 @@ public class Upvalue implements ObjectType {
     }
 
     @Override
-    public ObjTypeEnum getType() {
-        return ObjTypeEnum.UPVALUE;
+    public ObjType getType() {
+        return ObjType.UPVALUE;
     }
 }

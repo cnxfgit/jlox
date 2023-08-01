@@ -6,6 +6,6 @@ package com.craftinginterpreters.lox.objects;
  */
 public interface ObjectType {
 
-    ObjTypeEnum getType();
+    ObjType getType();
 
 }

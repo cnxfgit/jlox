@@ -17,8 +17,8 @@ public class Closure implements ObjectType {
     }
 
     @Override
-    public ObjTypeEnum getType() {
-        return ObjTypeEnum.CLOSURE;
+    public ObjType getType() {
+        return ObjType.CLOSURE;
     }
 
 }

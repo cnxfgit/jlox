@@ -7,8 +7,8 @@ package com.craftinginterpreters.lox.objects;
 public class Function implements ObjectType{
 
     @Override
-    public ObjTypeEnum getType() {
-        return ObjTypeEnum.FUNCTION;
+    public ObjType getType() {
+        return ObjType.FUNCTION;
     }
 
     public Function(){
