@@ -6,15 +6,15 @@ package com.craftinginterpreters.lox.scanner;
  */
 public class Token {
 
-    private TokenType type;
+    public TokenType type;
 
-    private int start;
+    public int start;
 
-    private int length;
+    public int length;
 
-    private int line;
+    public int line;
 
-    private String message;
+    public String message;
 
     public Token(TokenType type, int start, int length, int line, String message) {
         this.type = type;

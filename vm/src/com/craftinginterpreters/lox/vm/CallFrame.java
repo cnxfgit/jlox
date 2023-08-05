@@ -1,6 +1,8 @@
 package com.craftinginterpreters.lox.vm;
 
-import com.craftinginterpreters.lox.objects.Closure;
+
+import com.craftinginterpreters.lox.objects.ObjClosure;
+import com.craftinginterpreters.lox.value.Value;
 
 import java.util.List;
 
@@ -10,11 +12,11 @@ import java.util.List;
  */
 public class CallFrame {
 
-    public Closure closure;
+    public ObjClosure closure;
 
     public List<Byte> ip;
 
-    public List<Long> slots;
+    public List<Value> slots;
 
     public CallFrame(){
 

@@ -1,6 +1,6 @@
 package com.craftinginterpreters.lox;
 
-import com.craftinginterpreters.lox.vm.InterpretResultEnum;
+import com.craftinginterpreters.lox.vm.InterpretResult;
 import com.craftinginterpreters.lox.vm.Vm;
 
 import java.io.BufferedReader;
@@ -53,7 +53,7 @@ public class Lox {
         }
 
         String source = new String(bytes, Charset.defaultCharset());
-        InterpretResultEnum result = vm.interpret(source);
+        InterpretResult result = vm.interpret(source);
         switch (result) {
             case COMPILE_ERROR:
                 System.exit(65);

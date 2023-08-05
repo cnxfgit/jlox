@@ -6,13 +6,13 @@ import java.util.List;
  * @author hlx
  * @date 2023-07-27
  */
-public class Closure implements ObjectType {
+public class ObjClosure implements ObjectType {
 
-    private Function function;
+    private ObjFunction function;
 
-    private List<Upvalue> upvalues;
+    private List<ObjUpvalue> upvalues;
 
-    public Closure(Function function) {
+    public ObjClosure(ObjFunction function) {
         this.function = function;
     }
 
