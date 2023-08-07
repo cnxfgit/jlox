@@ -1,11 +1,3 @@
-var a = 123;
-var b = "hello";
-
-class C {
-    d(){
-        print(a)
-    }
-}
-
-c = C();
-c.d();
+2 * (1+1) == 4;
+(2 > 1) == !false;
+1 - (2 * 3) < 4 == false;
