@@ -99,10 +99,10 @@ public class Debug {
                 offset++;
                 byte constant = chunk.codes.get(offset++);
                 System.out.printf("%-16s %4d ", "CLOSURE", constant);
-                chunk.valueList.get(constant).print();
+                chunk.constants.get(constant).print();
                 System.out.println();
 
-                ObjFunction function = (ObjFunction) chunk.valueList.get(constant).obj;
+                ObjFunction function = (ObjFunction) chunk.constants.get(constant).obj;
                 for (int j = 0; j < function.upvalueCount; j++) {
                     int isLocal = chunk.codes.get(offset++);
                     int index = chunk.codes.get(offset++);
@@ -131,7 +131,7 @@ public class Debug {
     private static int constantInstruction(String name, Chunk chunk, int offset) {
         byte constant = chunk.codes.get(offset + 1);
         System.out.printf("%-16s %4d '", name, constant);
-        chunk.valueList.get(constant).print();
+        chunk.constants.get(constant).print();
         System.out.println();
         return offset + 2;
     }
@@ -158,7 +158,7 @@ public class Debug {
         byte constant = chunk.codes.get(offset + 1);
         byte argCount = chunk.codes.get(offset + 2);
         System.out.printf("%-16s (%d args) %4d '", name, argCount, constant);
-        chunk.valueList.get(constant).print();
+        chunk.constants.get(constant).print();
         System.out.print("'\n");
         return offset + 3;
     }

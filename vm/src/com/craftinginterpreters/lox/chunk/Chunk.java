@@ -14,19 +14,19 @@ public class Chunk {
 
     public List<Byte> codes;
     public List<Integer> lines;
-    public List<Value> valueList;
+    public List<Value> constants;
 
     public Chunk() {
         codes = new ArrayList<>();
         lines = new ArrayList<>();
-        valueList = new ArrayList<>();
+        constants = new ArrayList<>();
     }
 
     public int addConstant(Value value) {
         Lox.vm.push(value);
-        valueList.add(value);
+        constants.add(value);
         Lox.vm.pop();
-        return valueList.size() - 1;
+        return constants.size() - 1;
     }
 
     public void write(byte b, int line) {

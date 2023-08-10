@@ -152,17 +152,31 @@ public class Compiler {
         return true;
     }
 
+    private void emitByte(OpCode code) {
+        currentChunk().write((byte) code.ordinal(), parser.previous.line);
+    }
+
     private void emitByte(byte b) {
         currentChunk().write(b, parser.previous.line);
     }
 
-    private void emitBytes(byte byte1, byte byte2) {
-        emitByte(byte1);
-        emitByte(byte2);
+    private void emitBytes(OpCode op1, OpCode op2) {
+        emitByte(op1);
+        emitByte(op2);
+    }
+
+    private void emitBytes(byte b1, byte b2) {
+        emitByte(b1);
+        emitByte(b2);
+    }
+
+    private void emitBytes(OpCode op, byte b) {
+        emitByte(op);
+        emitByte(b);
     }
 
     private void emitLoop(int loopStart) {
-        emitByte((byte) OpCode.LOOP.ordinal());
+        emitByte(OpCode.LOOP);
 
         int offset = currentChunk().codes.size() - loopStart + 2;
         if (offset > Short.MAX_VALUE) error("Loop body too large.");
@@ -173,7 +187,7 @@ public class Compiler {
 
 
     private void emitConstant(Value value) {
-        emitBytes((byte) OpCode.CONSTANT.ordinal(), makeConstant(value));
+        emitBytes(OpCode.CONSTANT, makeConstant(value));
     }
 
     private void patchJump(int offset) {
@@ -192,14 +206,14 @@ public class Compiler {
 
     private void emitReturn() {
         if (current.type == FunctionType.INITIALIZER) {
-            emitBytes((byte) OpCode.GET_LOCAL.ordinal(), (byte) 0);
+            emitBytes(OpCode.GET_LOCAL, (byte) 0);
         } else {
-            emitByte((byte) OpCode.NIL.ordinal());
+            emitByte(OpCode.NIL);
         }
-        emitByte((byte) OpCode.RETURN.ordinal());
+        emitByte(OpCode.RETURN);
     }
 
-    private int emitJump(byte instruction) {
+    private int emitJump(OpCode instruction) {
         emitByte(instruction);
         emitByte((byte) 0xff);
         emitByte((byte) 0xff);
@@ -336,16 +350,16 @@ public class Compiler {
             consume(TokenType.SEMICOLON, "Expect ';' after loop condition.");
 
             // Jump out of the loop if the condition is false.
-            exitJump = emitJump((byte) OpCode.JUMP_IF_FALSE.ordinal());
-            emitByte((byte) OpCode.POP.ordinal()); // Condition.
+            exitJump = emitJump(OpCode.JUMP_IF_FALSE);
+            emitByte(OpCode.POP); // Condition.
         }
 
         // for的第三语句 增量子句
         if (!match(TokenType.RIGHT_PAREN)) {
-            int bodyJump = emitJump((byte) OpCode.JUMP.ordinal());
+            int bodyJump = emitJump(OpCode.JUMP);
             int incrementStart = currentChunk().codes.size();
             expression();
-            emitByte((byte) OpCode.POP.ordinal());
+            emitByte(OpCode.POP);
             consume(TokenType.RIGHT_PAREN, "Expect ')' after for clauses.");
 
             emitLoop(loopStart);
@@ -360,7 +374,7 @@ public class Compiler {
         // 修复跳跃
         if (exitJump != -1) {
             patchJump(exitJump);
-            emitByte((byte) OpCode.POP.ordinal());
+            emitByte(OpCode.POP);
         }
 
         endScope();
@@ -372,20 +386,20 @@ public class Compiler {
         consume(TokenType.RIGHT_PAREN, "Expect ')' after condition.");
 
         // then 分支跳转点
-        int thenJump = emitJump((byte) OpCode.JUMP_IF_FALSE.ordinal());
+        int thenJump = emitJump(OpCode.JUMP_IF_FALSE);
         // 如果为false 这个 pop不会被执行  会执行下面的pop
         // 如果为 true 执行这个pop之后 跳过实体else 或者空else(只有一个pop)
         // 弹出条件表达式
-        emitByte((byte) OpCode.POP.ordinal());
+        emitByte(OpCode.POP);
         statement();
 
         // else 分支跳转点
-        int elseJump = emitJump((byte) OpCode.JUMP.ordinal());
+        int elseJump = emitJump(OpCode.JUMP);
         // 回写then分支跳转的长度回写
         patchJump(thenJump);
 
         // 弹出条件表达式
-        emitByte((byte) OpCode.POP.ordinal());
+        emitByte(OpCode.POP);
         // then 分支过后探查 是否有else 这个if不触发的话则跳转一个 空else
         if (match(TokenType.ELSE)) statement();
         // else分支跳转长度回写
@@ -396,7 +410,7 @@ public class Compiler {
     private void printStatement() {
         expression();
         consume(TokenType.SEMICOLON, "Expect ';' after value.");
-        emitByte((byte) OpCode.PRINT.ordinal());
+        emitByte(OpCode.PRINT);
     }
 
 
@@ -414,7 +428,7 @@ public class Compiler {
 
             expression();
             consume(TokenType.SEMICOLON, "Expect ';' after return value.");
-            emitByte((byte) OpCode.RETURN.ordinal());
+            emitByte(OpCode.RETURN);
         }
     }
 
@@ -427,22 +441,22 @@ public class Compiler {
         consume(TokenType.RIGHT_PAREN, "Expect ')' after condition.");
 
         // 如果为false直接跳到下面的pop
-        int exitJump = emitJump((byte) OpCode.JUMP_IF_FALSE.ordinal());
-        emitByte((byte) OpCode.POP.ordinal());
+        int exitJump = emitJump(OpCode.JUMP_IF_FALSE);
+        emitByte(OpCode.POP);
         statement();
         // 循环节点
         emitLoop(loopStart);
 
         patchJump(exitJump);
         // false的跳入点
-        emitByte((byte) OpCode.POP.ordinal());
+        emitByte(OpCode.POP);
     }
 
 
     private void expressionStatement() {
         expression();
         consume(TokenType.SEMICOLON, "Expect ';' after expression.");
-        emitByte((byte) OpCode.POP.ordinal());
+        emitByte(OpCode.POP);
     }
 
     private void addLocal(Token name) {
@@ -510,7 +524,7 @@ public class Compiler {
             markInitialized();
             return;
         }
-        emitBytes((byte) OpCode.DEFINE_GLOBAL.ordinal(), global);
+        emitBytes(OpCode.DEFINE_GLOBAL, global);
     }
 
     private int resolveLocal(Compiler compiler, Token name) {
@@ -592,7 +606,7 @@ public class Compiler {
     }
 
     private Token syntheticToken(String text) {
-        return new Token(TokenType.IDENTIFIER, 0,  text.length(),0,text);
+        return new Token(TokenType.IDENTIFIER, 0, text.length(), 0, text);
     }
 
     private ObjFunction endCompiler() {
@@ -623,9 +637,9 @@ public class Compiler {
                 current.locals[current.localCount - 1].depth > current.scopeDepth) {
             // 被捕获的需要推送到闭包
             if (current.locals[current.localCount - 1].isCaptured) {
-                emitByte((byte) OpCode.CLOSE_UPVALUE.ordinal());
+                emitByte(OpCode.CLOSE_UPVALUE);
             } else {
-                emitByte((byte) OpCode.POP.ordinal());
+                emitByte(OpCode.POP);
             }
             current.localCount--;
         }
@@ -659,7 +673,7 @@ public class Compiler {
         block();
 
         ObjFunction function = endCompiler();
-        emitBytes((byte) OpCode.CLOSURE.ordinal(), makeConstant(function.toValue()));
+        emitBytes(OpCode.CLOSURE, makeConstant(function.toValue()));
 
         for (int i = 0; i < function.upvalueCount; i++) {
             emitByte((byte) (compiler.upvalues[i].isLocal ? 1 : 0));
@@ -676,7 +690,7 @@ public class Compiler {
             type = FunctionType.INITIALIZER;
         }
         function(type);
-        emitBytes((byte) OpCode.METHOD.ordinal(), constant);
+        emitBytes(OpCode.METHOD, constant);
     }
 
     private void funDeclaration() {
@@ -692,7 +706,7 @@ public class Compiler {
         byte nameConstant = identifierConstant(parser.previous);
         declareVariable();
 
-        emitBytes((byte) OpCode.CLASS.ordinal(), nameConstant);
+        emitBytes(OpCode.CLASS, nameConstant);
         defineVariable(nameConstant);
 
         ClassCompiler classCompiler = new ClassCompiler();
@@ -713,7 +727,7 @@ public class Compiler {
             defineVariable((byte) 0);
 
             namedVariable(className, false);
-            emitByte((byte) OpCode.INHERIT.ordinal());
+            emitByte(OpCode.INHERIT);
             classCompiler.hasSuperclass = true;
         }
 
@@ -723,7 +737,7 @@ public class Compiler {
             method();
         }
         consume(TokenType.RIGHT_BRACE, "Expect '}' after class body.");
-        emitByte((byte) OpCode.POP.ordinal());
+        emitByte(OpCode.POP);
 
         if (classCompiler.hasSuperclass) {
             endScope();
@@ -738,7 +752,7 @@ public class Compiler {
         if (match(TokenType.EQUAL)) {
             expression();
         } else {
-            emitByte((byte) OpCode.NIL.ordinal());
+            emitByte(OpCode.NIL);
         }
         consume(TokenType.SEMICOLON, "Expect ';' after variable declaration.");
 
@@ -779,9 +793,9 @@ public class Compiler {
 
     private ParseFn and_() {
         return (canAssign) -> {
-            int endJump = emitJump((byte) OpCode.JUMP_IF_FALSE.ordinal());
+            int endJump = emitJump(OpCode.JUMP_IF_FALSE);
 
-            emitByte((byte) OpCode.POP.ordinal());
+            emitByte(OpCode.POP);
             parsePrecedence(Precedence.AND);
 
             patchJump(endJump);
@@ -797,34 +811,34 @@ public class Compiler {
 
             switch (operatorType) {
                 case BANG_EQUAL:
-                    emitBytes((byte) OpCode.EQUAL.ordinal(), (byte) OpCode.NOT.ordinal());
+                    emitBytes(OpCode.EQUAL, OpCode.NOT);
                     break;
                 case EQUAL_EQUAL:
-                    emitByte((byte) OpCode.EQUAL.ordinal());
+                    emitByte(OpCode.EQUAL);
                     break;
                 case GREATER:
-                    emitByte((byte) OpCode.GREATER.ordinal());
+                    emitByte(OpCode.GREATER);
                     break;
                 case GREATER_EQUAL:
-                    emitBytes((byte) OpCode.LESS.ordinal(), (byte) OpCode.NOT.ordinal());
+                    emitBytes(OpCode.LESS, OpCode.NOT);
                     break;
                 case LESS:
-                    emitByte((byte) OpCode.LESS.ordinal());
+                    emitByte(OpCode.LESS);
                     break;
                 case LESS_EQUAL:
-                    emitBytes((byte) OpCode.GREATER.ordinal(), (byte) OpCode.NOT.ordinal());
+                    emitBytes(OpCode.GREATER, OpCode.NOT);
                     break;
                 case PLUS:
-                    emitByte((byte) OpCode.ADD.ordinal());
+                    emitByte(OpCode.ADD);
                     break;
                 case MINUS:
-                    emitByte((byte) OpCode.SUBTRACT.ordinal());
+                    emitByte(OpCode.SUBTRACT);
                     break;
                 case STAR:
-                    emitByte((byte) OpCode.MULTIPLY.ordinal());
+                    emitByte(OpCode.MULTIPLY);
                     break;
                 case SLASH:
-                    emitByte((byte) OpCode.DIVIDE.ordinal());
+                    emitByte(OpCode.DIVIDE);
                     break;
                 default:
                     return; // Unreachable.
@@ -836,7 +850,7 @@ public class Compiler {
     private ParseFn call() {
         return (canAssign) -> {
             byte argCount = argumentList();
-            emitBytes((byte) OpCode.CALL.ordinal(), argCount);
+            emitBytes(OpCode.CALL, argCount);
         };
     }
 
@@ -848,13 +862,13 @@ public class Compiler {
 
             if (canAssign && match(TokenType.EQUAL)) {
                 expression();
-                emitBytes((byte) OpCode.SET_PROPERTY.ordinal(), name);
+                emitBytes(OpCode.SET_PROPERTY, name);
             } else if (match(TokenType.LEFT_PAREN)) {
                 byte argCount = argumentList();
-                emitBytes((byte) OpCode.INVOKE.ordinal(), name);
+                emitBytes(OpCode.INVOKE, name);
                 emitByte(argCount);
             } else {
-                emitBytes((byte) OpCode.GET_PROPERTY.ordinal(), name);
+                emitBytes(OpCode.GET_PROPERTY, name);
             }
         };
     }
@@ -864,13 +878,13 @@ public class Compiler {
         return (canAssign) -> {
             switch (parser.previous.type) {
                 case FALSE:
-                    emitByte((byte) OpCode.FALSE.ordinal());
+                    emitByte(OpCode.FALSE);
                     break;
                 case NIL:
-                    emitByte((byte) OpCode.NIL.ordinal());
+                    emitByte(OpCode.NIL);
                     break;
                 case TRUE:
-                    emitByte((byte) OpCode.TRUE.ordinal());
+                    emitByte(OpCode.TRUE);
                     break;
                 default:
                     return; // Unreachable.
@@ -897,11 +911,11 @@ public class Compiler {
 
     private ParseFn or_() {
         return (canAssign) -> {
-            int elseJump = emitJump((byte) OpCode.JUMP_IF_FALSE.ordinal());
-            int endJump = emitJump((byte) OpCode.JUMP.ordinal());
+            int elseJump = emitJump(OpCode.JUMP_IF_FALSE);
+            int endJump = emitJump(OpCode.JUMP);
 
             patchJump(elseJump);
-            emitByte((byte) OpCode.POP.ordinal());
+            emitByte(OpCode.POP);
 
             parsePrecedence(Precedence.OR);
             patchJump(endJump);
@@ -938,11 +952,11 @@ public class Compiler {
             if (match(TokenType.LEFT_PAREN)) {
                 byte argCount = argumentList();
                 namedVariable(syntheticToken("super"), false);
-                emitBytes((byte) OpCode.SUPER_INVOKE.ordinal(), name);
+                emitBytes(OpCode.SUPER_INVOKE, name);
                 emitByte(argCount);
             } else {
                 namedVariable(syntheticToken("super"), false);
-                emitBytes((byte) OpCode.GET_SUPER.ordinal(), name);
+                emitBytes(OpCode.GET_SUPER, name);
             }
         };
     }
@@ -967,10 +981,10 @@ public class Compiler {
             // Emit the operator instruction.
             switch (operatorType) {
                 case BANG:
-                    emitByte((byte) OpCode.NOT.ordinal());
+                    emitByte(OpCode.NOT);
                     break;
                 case MINUS:
-                    emitByte((byte) OpCode.NEGATE.ordinal());
+                    emitByte(OpCode.NEGATE);
                     break;
                 default:
                     return; // Unreachable.
