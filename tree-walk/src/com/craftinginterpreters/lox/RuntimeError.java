@@ -4,7 +4,7 @@ package com.craftinginterpreters.lox;
  * @author hlx
  * @date 2023-08-07
  */
-public class RuntimeError extends RuntimeException {
+class RuntimeError extends RuntimeException {
 
     final Token token;
 

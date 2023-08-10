@@ -11,7 +11,7 @@ import static com.craftinginterpreters.lox.TokenType.*;
  * @author hlx
  * @date 2023-07-25
  */
-public class Scanner {
+class Scanner {
 
     private final String source;
     private final List<Token> tokens = new ArrayList<>();

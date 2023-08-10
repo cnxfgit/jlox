@@ -4,7 +4,7 @@ package com.craftinginterpreters.lox;
  * @author hlx
  * @date 2023-07-25
  */
-public class Token {
+class Token {
 
     final TokenType type;
     final String lexeme;

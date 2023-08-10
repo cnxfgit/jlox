@@ -4,7 +4,7 @@ package com.craftinginterpreters.lox;
  * @author hlx
  * @date 2023-08-01
  */
-public class AstPrinter implements Expr.Visitor<String> {
+class AstPrinter implements Expr.Visitor<String> {
 
     String print(Expr expr) {
         return expr.accept(this);
@@ -29,6 +29,11 @@ public class AstPrinter implements Expr.Visitor<String> {
     @Override
     public String visitUnaryExpr(Expr.Unary expr) {
         return parenthesize(expr.operator.lexeme, expr.right);
+    }
+
+    @Override
+    public String visitVariableExpr(Expr.Variable expr) {
+        return null;
     }
 
     private String parenthesize(String name, Expr... exprs) {
