@@ -8,7 +8,7 @@ import java.util.List;
  * @author hlx
  * @date 2023-07-27
  */
-public class ObjUpvalue implements ObjectType {
+public class ObjUpvalue implements Obj {
 
     private List<Value> location;
 
@@ -23,5 +23,10 @@ public class ObjUpvalue implements ObjectType {
     @Override
     public ObjType getType() {
         return ObjType.UPVALUE;
+    }
+
+    @Override
+    public void print() {
+        System.out.print("upvalue");
     }
 }

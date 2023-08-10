@@ -15,7 +15,7 @@ public class Local {
     boolean isCaptured;
 
     public Local(int depth, boolean isCaptured) {
-        this.name = new Token("", 0);
+        this.name = null;
         this.depth = depth;
         this.isCaptured = isCaptured;
     }

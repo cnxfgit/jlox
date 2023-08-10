@@ -44,7 +44,7 @@ public class Scanner {
         return source.charAt(current + 1);
     }
 
-    private boolean match(char expected) {
+    public boolean match(char expected) {
         if (isAtEnd()) return false;
         if (source.charAt(current) != expected) return false;
 

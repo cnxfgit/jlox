@@ -6,16 +6,25 @@ import com.craftinginterpreters.lox.chunk.Chunk;
  * @author hlx
  * @date 2023-07-27
  */
-public class ObjFunction implements ObjectType {
+public class ObjFunction implements Obj {
 
-    private int arity;
-    private int upvalueCount;
-    private Chunk chunk;
+    public int arity;
+    public int upvalueCount;
+    public Chunk chunk;
     public ObjString name;
 
     @Override
     public ObjType getType() {
         return ObjType.FUNCTION;
+    }
+
+    @Override
+    public void print() {
+        if (this.name == null) {
+            System.out.print("<script>");
+            return;
+        }
+        System.out.printf("<fn %s>", this.name.getString());
     }
 
     public ObjFunction() {

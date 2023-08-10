@@ -6,9 +6,9 @@ import java.util.List;
  * @author hlx
  * @date 2023-07-27
  */
-public class ObjClosure implements ObjectType {
+public class ObjClosure implements Obj {
 
-    private ObjFunction function;
+    private final ObjFunction function;
 
     private List<ObjUpvalue> upvalues;
 
@@ -19,6 +19,11 @@ public class ObjClosure implements ObjectType {
     @Override
     public ObjType getType() {
         return ObjType.CLOSURE;
+    }
+
+    @Override
+    public void print() {
+        this.function.print();
     }
 
 }

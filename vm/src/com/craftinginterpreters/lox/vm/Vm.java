@@ -6,6 +6,7 @@ import com.craftinginterpreters.lox.objects.ObjFunction;
 import com.craftinginterpreters.lox.objects.ObjString;
 import com.craftinginterpreters.lox.objects.ObjUpvalue;
 import com.craftinginterpreters.lox.parser.Parser;
+import com.craftinginterpreters.lox.scanner.Scanner;
 import com.craftinginterpreters.lox.value.Value;
 
 import java.util.HashMap;
@@ -52,13 +53,18 @@ public class Vm {
         this.openUpvalues = null;
     }
 
+    public void push(Value value) {
+        this.stack[stackTop] = value;
+        this.stackTop++;
+    }
+
+    public Value pop() {
+        this.stackTop--;
+        return this.stack[stackTop++];
+    }
+
     public InterpretResult interpret(String source) {
-        Compiler compiler = new Compiler(source, FunctionType.SCRIPT);
-
-        Compiler.parser.hadError = false;
-        Compiler.parser.panicMode = false;
-
-        compiler.advance();
+        Compiler compiler = new Compiler(new Scanner(source), FunctionType.SCRIPT);
 
         ObjFunction function = compiler.compile();
         return InterpretResult.OK;

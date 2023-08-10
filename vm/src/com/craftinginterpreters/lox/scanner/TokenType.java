@@ -1,5 +1,7 @@
 package com.craftinginterpreters.lox.scanner;
 
+import com.craftinginterpreters.lox.compiler.ParseRule;
+
 /**
  * @author hlx
  * @date 2023-08-01
@@ -23,5 +25,5 @@ public enum TokenType {
     PRINT, RETURN, SUPER, THIS,
     TRUE, VAR, WHILE,
     // 错误令牌或者结束符
-    ERROR, EOF
+    ERROR, EOF;
 }

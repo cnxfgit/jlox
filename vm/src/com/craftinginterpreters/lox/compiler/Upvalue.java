@@ -7,9 +7,9 @@ package com.craftinginterpreters.lox.compiler;
 public class Upvalue {
 
 
-    private byte index;
+    byte index;
 
-    private boolean isLocal;
+    boolean isLocal;
 
     public Upvalue() {
 

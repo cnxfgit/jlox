@@ -1,5 +1,6 @@
 package com.craftinginterpreters.lox.chunk;
 
+import com.craftinginterpreters.lox.Lox;
 import com.craftinginterpreters.lox.value.Value;
 
 import java.util.ArrayList;
@@ -11,13 +12,26 @@ import java.util.List;
  */
 public class Chunk {
 
-    private List<Byte> codes;
-    private List<Integer> lines;
-    private List<Value> valueList;
+    public List<Byte> codes;
+    public List<Integer> lines;
+    public List<Value> valueList;
 
-    public Chunk(){
+    public Chunk() {
         codes = new ArrayList<>();
         lines = new ArrayList<>();
         valueList = new ArrayList<>();
     }
+
+    public int addConstant(Value value) {
+        Lox.vm.push(value);
+        valueList.add(value);
+        Lox.vm.pop();
+        return valueList.size() - 1;
+    }
+
+    public void write(byte b, int line) {
+        this.codes.add(b);
+        this.lines.add(line);
+    }
+
 }
