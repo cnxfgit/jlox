@@ -14,9 +14,9 @@ public class CallFrame {
 
     public ObjClosure closure;
 
-    public List<Byte> ip;
+    public int ip;
 
-    public List<Value> slots;
+    public int slots;
 
     public CallFrame(){
 

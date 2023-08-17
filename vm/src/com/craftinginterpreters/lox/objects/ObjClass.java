@@ -2,6 +2,7 @@ package com.craftinginterpreters.lox.objects;
 
 import com.craftinginterpreters.lox.value.Value;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -10,9 +11,14 @@ import java.util.Map;
  */
 public class ObjClass implements Obj {
 
-    private ObjString name;
+    public ObjString name;
 
-    private Map<ObjString, Value> methods;
+    public Map<ObjString, Value> methods;
+
+    public ObjClass(ObjString name) {
+        this.name = name;
+        methods = new HashMap<>();
+    }
 
     @Override
     public ObjType getType() {

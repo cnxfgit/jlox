@@ -1,0 +1,111 @@
+2 * (1+1) == 4;
+(2 > 1) == !false;
+1 - (2 * 3) < 4 == false;
+
+print "one";
+print true;
+print 2 + 1;
+
+var beverage = "espresso";
+
+print beverage; // "espresso".
+
+// print a; // Error
+var a = "too late!";
+
+var a;
+print a; // "nil".
+
+var a = "before";
+print a; // "before".
+var a = "after";
+print a; // "after".
+
+var a = 1;
+var b = 2;
+print a + b;
+
+
+var a = "before";
+a = "value";
+print a = 2; // "2".
+
+{
+  var a = "first";
+  print a; // "first".
+}
+
+{
+  var a = "second";
+  print a; // "second".
+}
+
+{
+  var a = "in block";
+}
+print a; // Error! No more "a".
+
+
+// How loud?
+var volume = 11;
+
+// Silence.
+volume = 0;
+
+// Calculate size of 3x4x5 cuboid.
+{
+  var volume = 3 * 4 * 5;
+  print volume;
+}
+
+var global = "outside";
+{
+  var local = "inside";
+  print global + local;
+}
+
+var a = "global a";
+var b = "global b";
+var c = "global c";
+{
+  var a = "outer a";
+  var b = "outer b";
+  {
+    var a = "inner a";
+    print a;
+    print b;
+    print c;
+  }
+  print a;
+  print b;
+  print c;
+}
+print a;
+print b;
+print c;
+
+var condition = true;
+if (condition) {
+    print "if statement";
+} else {
+    print "else statement";
+}
+
+condition = false;
+if (condition) {
+    print "if statement";
+} else {
+    print "else statement";
+}
+
+
+print "hi" or 2; // "hi".
+print nil or "yes"; // "yes".
+
+{
+  var i = 0;
+  while (i < 10) {
+    print i;
+    i = i + 1;
+  }
+}

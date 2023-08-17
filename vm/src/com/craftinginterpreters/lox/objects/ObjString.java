@@ -24,6 +24,14 @@ public class ObjString implements Obj {
     }
 
     @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof  ObjString)) {
+            throw new RuntimeException();
+        }
+        return string.equals(((ObjString) obj).string);
+    }
+
+    @Override
     public ObjType getType() {
         return ObjType.STRING;
     }

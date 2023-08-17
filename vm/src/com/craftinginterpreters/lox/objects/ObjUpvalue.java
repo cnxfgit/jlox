@@ -10,13 +10,19 @@ import java.util.List;
  */
 public class ObjUpvalue implements Obj {
 
-    private List<Value> location;
+    public Value location;
 
-    private Value closed;
+    public Value closed;
 
-    private ObjUpvalue next;
+    public ObjUpvalue next;
 
-    public ObjUpvalue() {
+    public ObjUpvalue(Value value) {
+        this.closed = new Value();
+        this.location = value;
+        this.next = null;
+    }
+
+    public ObjUpvalue(){
 
     }
 

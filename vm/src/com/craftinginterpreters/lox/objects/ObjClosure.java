@@ -1,5 +1,6 @@
 package com.craftinginterpreters.lox.objects;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -8,12 +9,19 @@ import java.util.List;
  */
 public class ObjClosure implements Obj {
 
-    private final ObjFunction function;
+    public final ObjFunction function;
 
-    private List<ObjUpvalue> upvalues;
+    public List<ObjUpvalue> upvalues;
+
+    public int upvalueCount;
 
     public ObjClosure(ObjFunction function) {
         this.function = function;
+        this.upvalueCount = function.upvalueCount;
+        this.upvalues = new ArrayList<>();
+        for (int i = 0; i < upvalueCount; i++) {
+            this.upvalues.add(new ObjUpvalue());
+        }
     }
 
     @Override

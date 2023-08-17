@@ -20,6 +20,8 @@ public class Lox {
 
     public static boolean DEBUG_PRINT_CODE = false;
 
+    public static boolean DEBUG_TRACE_EXECUTION = false;
+
     public static void main(String[] args) throws IOException {
         vm = new Vm();
 

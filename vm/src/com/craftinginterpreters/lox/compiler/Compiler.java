@@ -91,7 +91,15 @@ public class Compiler {
         this.type = type;
         this.scanner = scanner;
         this.locals = new Local[Byte.MAX_VALUE];
+        for (int i = 0; i < locals.length; i++) {
+            locals[i] = new Local(0, false);
+        }
+
         this.upvalues = new Upvalue[Byte.MAX_VALUE];
+        for (int i = 0; i < upvalues.length; i++) {
+            upvalues[i] = new Upvalue();
+        }
+
         this.localCount = 0;
         this.scopeDepth = 0;
 
@@ -578,26 +586,26 @@ public class Compiler {
     }
 
     private void namedVariable(Token name, boolean canAssign) {
-        int getOp, setOp;
+        OpCode getOp, setOp;
         int arg = resolveLocal(current, name);
         if (arg != -1) {
-            getOp = OpCode.GET_LOCAL.ordinal();
-            setOp = OpCode.SET_LOCAL.ordinal();
+            getOp = OpCode.GET_LOCAL;
+            setOp = OpCode.SET_LOCAL;
         } else if ((arg = resolveUpvalue(current, name)) != -1) {
-            getOp = OpCode.GET_UPVALUE.ordinal();
-            setOp = OpCode.SET_UPVALUE.ordinal();
+            getOp = OpCode.GET_UPVALUE;
+            setOp = OpCode.SET_UPVALUE;
         } else {
             arg = identifierConstant(name);
-            getOp = OpCode.GET_GLOBAL.ordinal();
-            setOp = OpCode.SET_GLOBAL.ordinal();
+            getOp = OpCode.GET_GLOBAL;
+            setOp = OpCode.SET_GLOBAL;
         }
 
         // 接等号为赋值  反之为取值
         if (canAssign && match(TokenType.EQUAL)) {
             expression();
-            emitBytes((byte) setOp, (byte) arg);
+            emitBytes((byte) setOp.ordinal(), (byte) arg);
         } else {
-            emitBytes((byte) getOp, (byte) arg);
+            emitBytes((byte) getOp.ordinal(), (byte) arg);
         }
     }
 

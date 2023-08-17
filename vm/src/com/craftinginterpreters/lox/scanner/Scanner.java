@@ -79,8 +79,8 @@ public class Scanner {
         }
     }
 
-    private TokenType checkKeyword(int start, int length, String rest, TokenType type) {
-        if (rest.equals(source.substring(start, start + length))) {
+    private TokenType checkKeyword(String rest, TokenType type) {
+        if (rest.equals(source.substring(start, start + rest.length()))) {
             return type;
         }
         return TokenType.IDENTIFIER;
@@ -89,56 +89,56 @@ public class Scanner {
     private TokenType identifierType() {
         switch (source.charAt(start)) {
             case 'a':
-                return checkKeyword(1, 2, "nd", TokenType.AND);
+                return checkKeyword("and", TokenType.AND);
             case 'c':
-                return checkKeyword(1, 4, "lass", TokenType.CLASS);
+                return checkKeyword("lass", TokenType.CLASS);
             case 'e':
-                return checkKeyword(1, 3, "lse", TokenType.ELSE);
+                return checkKeyword("else", TokenType.ELSE);
             case 'f':
                 if (this.current - this.start > 1) {
                     switch (source.charAt(start + 1)) {
                         case 'a':
-                            return checkKeyword(2, 3, "lse", TokenType.FALSE);
+                            return checkKeyword("false", TokenType.FALSE);
                         case 'o':
-                            return checkKeyword(2, 1, "r", TokenType.FOR);
+                            return checkKeyword("for", TokenType.FOR);
                         case 'u':
-                            return checkKeyword(2, 1, "n", TokenType.FUN);
+                            return checkKeyword("fun", TokenType.FUN);
                     }
                 }
                 break;
             case 'i':
-                return checkKeyword(1, 1, "f", TokenType.IF);
+                return checkKeyword("if", TokenType.IF);
             case 'n':
-                return checkKeyword(1, 2, "il", TokenType.NIL);
+                return checkKeyword("nil", TokenType.NIL);
             case 'o':
-                return checkKeyword(1, 1, "r", TokenType.OR);
+                return checkKeyword("or", TokenType.OR);
             case 'p':
-                return checkKeyword(1, 4, "rint", TokenType.PRINT);
+                return checkKeyword("print", TokenType.PRINT);
             case 'r':
-                return checkKeyword(1, 5, "eturn", TokenType.RETURN);
+                return checkKeyword("return", TokenType.RETURN);
             case 's':
-                return checkKeyword(1, 4, "uper", TokenType.SUPER);
+                return checkKeyword("super", TokenType.SUPER);
             case 't':
                 if (this.current - this.start > 1) {
                     switch (source.charAt(start + 1)) {
                         case 'h':
-                            return checkKeyword(2, 2, "is", TokenType.THIS);
+                            return checkKeyword("this", TokenType.THIS);
                         case 'r':
-                            return checkKeyword(2, 2, "ue", TokenType.TRUE);
+                            return checkKeyword("true", TokenType.TRUE);
                     }
                 }
                 break;
             case 'v':
-                return checkKeyword(1, 2, "ar", TokenType.VAR);
+                return checkKeyword("var", TokenType.VAR);
             case 'w':
-                return checkKeyword(1, 4, "hile", TokenType.WHILE);
+                return checkKeyword("while", TokenType.WHILE);
         }
         return TokenType.IDENTIFIER;
     }
 
     private Token identifier() {
         while (isAlpha(peek()) || isDigit(peek())) advance();
-        return new Token(identifierType(), start, current, line, source.substring(start, current));
+        return new Token(identifierType(), start, current - start, line, source.substring(start, current));
     }
 
     private Token number() {
@@ -165,7 +165,7 @@ public class Scanner {
 
         // The closing quote.
         advance();
-        return new Token(TokenType.STRING, start, current, line, source.substring(start, current));
+        return new Token(TokenType.STRING, start, current - start - 2, line, source.substring(start + 1, current - 1));
     }
 
     public Token scanToken() {
