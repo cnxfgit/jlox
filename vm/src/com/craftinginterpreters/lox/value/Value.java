@@ -44,7 +44,7 @@ public class Value {
                 System.out.print("nil");
                 break;
             case NUMBER:
-                System.out.printf("%g", this.number);
+                System.out.print(this.number);
                 break;
             case OBJ:
                 this.obj.print();

@@ -72,7 +72,7 @@ public class Vm {
 
     public Value pop() {
         this.stackTop--;
-        return this.stack[stackTop++];
+        return stackTop < 0 ? null : this.stack[stackTop];
     }
 
     private Value peek(int distance) {
@@ -140,8 +140,8 @@ public class Vm {
             runtimeError("Operands must be numbers.");
             throw new Exception("INTERPRET_RUNTIME_ERROR");
         }
-        double a = pop().asNumber();
         double b = pop().asNumber();
+        double a = pop().asNumber();
 
         switch (op) {
             case "-":
@@ -239,12 +239,13 @@ public class Vm {
                 }
                 case GET_UPVALUE: {
                     byte slot = readByte(frame);
-                    push(frame.closure.upvalues.get(slot).location);
+                    push(frame.closure.upvalues.get(slot).closed);
                     break;
                 }
                 case SET_UPVALUE: {
                     byte slot = readByte(frame);
-                    frame.closure.upvalues.get(slot).location = peek(0);
+                    frame.closure.upvalues.get(slot).location = this.stackTop - 1;
+                    frame.closure.upvalues.get(slot).closed = this.stack[this.stackTop - 1];
                     break;
                 }
                 case GET_PROPERTY: {
@@ -411,7 +412,7 @@ public class Vm {
                         byte isLocal = readByte(frame);
                         byte index = readByte(frame);
                         if (isLocal != 0) {
-                            closure.upvalues.set(i, captureUpvalue(this.stack[frame.slots + index]));
+                            closure.upvalues.set(i, captureUpvalue(frame.slots + index));
                         } else {
                             closure.upvalues.set(i, frame.closure.upvalues.get(index));
                         }
@@ -419,12 +420,12 @@ public class Vm {
                     break;
                 }
                 case CLOSE_UPVALUE:
-                    closeUpvalues(this.stack[stackTop - 1]);
+                    closeUpvalues(stackTop - 1);
                     pop();
                     break;
                 case RETURN: {
                     Value result = pop();
-                    closeUpvalues(this.stack[frame.slots]);
+                    closeUpvalues(frame.slots);
                     this.frameCount--;
                     if (this.frameCount == 0) {
                         pop();
@@ -465,19 +466,18 @@ public class Vm {
         pop();
     }
 
-    private void closeUpvalues(Value last) {
-        while (this.openUpvalues != null && this.openUpvalues.location.hashCode() >= last.hashCode()) {
+    private void closeUpvalues(int last) {
+        while (this.openUpvalues != null && this.openUpvalues.location >= last) {
             ObjUpvalue upvalue = this.openUpvalues;
-            upvalue.closed = upvalue.location;
-            upvalue.location = upvalue.closed;
+            upvalue.closed = this.stack[upvalue.location];
             this.openUpvalues = upvalue.next;
         }
     }
 
-    private ObjUpvalue captureUpvalue(Value local) {
+    private ObjUpvalue captureUpvalue(int local) {
         ObjUpvalue prevUpvalue = null;
         ObjUpvalue upvalue = this.openUpvalues;
-        while (upvalue != null && upvalue.location.hashCode() > local.hashCode()) {
+        while (upvalue != null && upvalue.location > local) {
             prevUpvalue = upvalue;
             upvalue = upvalue.next;
         }

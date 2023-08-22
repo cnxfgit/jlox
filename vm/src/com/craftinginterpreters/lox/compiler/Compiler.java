@@ -911,7 +911,7 @@ public class Compiler {
 
     private ParseFn number() {
         return (canAssign) -> {
-            double value = Integer.parseInt(parser.previous.message);
+            double value = Double.parseDouble(parser.previous.message);
             emitConstant(new Value(ValueType.NUMBER, value));
         };
     }
