@@ -178,8 +178,7 @@ public class Vm {
                     System.out.print(" ]");
                 }
                 System.out.println();
-                Debug.disassembleInstruction(frame.closure.function.chunk,
-                        frame.ip - frame.closure.function.chunk.codes.size());
+                Debug.disassembleInstruction(frame.closure.function.chunk, frame.ip);
             }
 
             byte instruction = readByte(frame);
