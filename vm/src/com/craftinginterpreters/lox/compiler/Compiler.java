@@ -4,7 +4,6 @@ import com.craftinginterpreters.lox.Lox;
 import com.craftinginterpreters.lox.chunk.Chunk;
 import com.craftinginterpreters.lox.chunk.OpCode;
 import com.craftinginterpreters.lox.debug.Debug;
-import com.craftinginterpreters.lox.objects.Obj;
 import com.craftinginterpreters.lox.objects.ObjFunction;
 import com.craftinginterpreters.lox.objects.ObjString;
 import com.craftinginterpreters.lox.parser.Parser;
@@ -24,23 +23,23 @@ public class Compiler {
 
     public static Parser parser = new Parser();
 
-    private Compiler enclosing;
+    private final Compiler enclosing;
 
-    private ObjFunction function;
+    private final ObjFunction function;
 
-    private FunctionType type;
+    private final FunctionType type;
 
-    private Local[] locals;
+    private final Local[] locals;
 
     private int localCount;
 
-    private Upvalue[] upvalues;
+    private final Upvalue[] upvalues;
 
     private int scopeDepth;
 
-    private Scanner scanner;
+    private final Scanner scanner;
 
-    private final ParseRule rules[];
+    private final ParseRule[] rules;
 
     {
         rules = new ParseRule[TokenType.values().length];

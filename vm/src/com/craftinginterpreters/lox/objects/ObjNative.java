@@ -6,7 +6,11 @@ package com.craftinginterpreters.lox.objects;
  */
 public class ObjNative implements Obj{
 
-    private NativeFn function;
+    private final NativeFn function;
+
+    public ObjNative(NativeFn function){
+        this.function = function;
+    }
 
     @Override
     public ObjType getType() {
@@ -22,7 +26,4 @@ public class ObjNative implements Obj{
         return function;
     }
 
-    public void setFunction(NativeFn function) {
-        this.function = function;
-    }
 }

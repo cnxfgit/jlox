@@ -11,9 +11,9 @@ import java.util.Map;
  */
 public class ObjClass implements Obj {
 
-    private ObjString name;
+    private final ObjString name;
 
-    private Map<ObjString, Value> methods;
+    private final Map<ObjString, Value> methods;
 
     public ObjClass(ObjString name) {
         this.name = name;
@@ -34,15 +34,8 @@ public class ObjClass implements Obj {
         return name;
     }
 
-    public void setName(ObjString name) {
-        this.name = name;
-    }
-
     public Map<ObjString, Value> getMethods() {
         return methods;
     }
 
-    public void setMethods(Map<ObjString, Value> methods) {
-        this.methods = methods;
-    }
 }

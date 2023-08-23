@@ -6,12 +6,10 @@ import com.craftinginterpreters.lox.compiler.Compiler;
 import com.craftinginterpreters.lox.compiler.FunctionType;
 import com.craftinginterpreters.lox.debug.Debug;
 import com.craftinginterpreters.lox.objects.*;
-import com.craftinginterpreters.lox.parser.Parser;
 import com.craftinginterpreters.lox.scanner.Scanner;
 import com.craftinginterpreters.lox.value.Value;
 import com.craftinginterpreters.lox.value.ValueType;
 
-import java.awt.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -26,19 +24,19 @@ public class Vm {
 
     private static final int STACK_MAX = (FRAMES_MAX * Byte.MAX_VALUE);
 
-    private CallFrame[] frames;
+    private final CallFrame[] frames;
 
     private int frameCount;
 
-    private Value stack[];
+    private final Value[] stack;
 
     private int stackTop;
 
-    private Map<ObjString, Value> globals;
+    private final Map<ObjString, Value> globals;
 
     public Map<ObjString, Value> strings;
 
-    private String initString;
+    private final String initString;
 
     private ObjUpvalue openUpvalues;
 
@@ -57,12 +55,24 @@ public class Vm {
         this.globals = new HashMap<>();
         this.strings = new HashMap<>();
         this.initString = "init";
+
+        defineNative("clock", (argCount, args) -> {
+            return new Value(ValueType.NUMBER, (double) System.currentTimeMillis());
+        });
     }
 
     private void resetStack() {
         this.stackTop = 0;
         this.frameCount = 0;
         this.openUpvalues = null;
+    }
+
+    private void defineNative(String name, NativeFn function) {
+        push(new ObjString(name).toValue());
+        push(new ObjNative(function).toValue());
+        this.globals.put(this.stack[0].asString(), this.stack[1]);
+        pop();
+        pop();
     }
 
     public void push(Value value) {
@@ -374,7 +384,7 @@ public class Vm {
                 }
                 case LOOP: {
                     short offset = readShort(frame);
-                    frame.setIp(frame.getIp()- offset);
+                    frame.setIp(frame.getIp() - offset);
                     break;
                 }
                 case CALL: {

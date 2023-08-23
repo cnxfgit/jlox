@@ -1,11 +1,4 @@
 
-var beverage = "espresso";
-
-print beverage; // "espresso".
-
-// print a; // Error
-var a = "too late!";
-
 var a;
 print a; // "nil".
 
@@ -182,3 +175,14 @@ fun makeCounter() {
 var counter = makeCounter();
 counter(); // "1".
 counter(); // "2".
+
+fun fib(n){
+  if (n < 2) return 1;
+  return fib(n-2) + fib(n - 1);
+}
+
+var start = clock();
+fib(30);
+var end = clock();
+print "===";
+print end - start;

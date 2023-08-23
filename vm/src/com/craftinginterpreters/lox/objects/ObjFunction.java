@@ -10,7 +10,7 @@ public class ObjFunction implements Obj {
 
     private int arity;
     private int upvalueCount;
-    private Chunk chunk;
+    private final Chunk chunk;
     private ObjString name;
 
     @Override
@@ -52,10 +52,6 @@ public class ObjFunction implements Obj {
 
     public Chunk getChunk() {
         return chunk;
-    }
-
-    public void setChunk(Chunk chunk) {
-        this.chunk = chunk;
     }
 
     public ObjString getName() {

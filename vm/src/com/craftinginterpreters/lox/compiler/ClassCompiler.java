@@ -7,7 +7,7 @@ package com.craftinginterpreters.lox.compiler;
 public class ClassCompiler {
 
     public static ClassCompiler currentClass;
-    private ClassCompiler enclosing;
+    private final ClassCompiler enclosing;
     private boolean hasSuperclass;
 
     public ClassCompiler(){
@@ -26,9 +26,5 @@ public class ClassCompiler {
 
     public void setHasSuperclass(boolean hasSuperclass) {
         this.hasSuperclass = hasSuperclass;
-    }
-
-    public void setEnclosing(ClassCompiler enclosing) {
-        this.enclosing = enclosing;
     }
 }

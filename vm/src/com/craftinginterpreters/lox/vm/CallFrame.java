@@ -2,9 +2,6 @@ package com.craftinginterpreters.lox.vm;
 
 
 import com.craftinginterpreters.lox.objects.ObjClosure;
-import com.craftinginterpreters.lox.value.Value;
-
-import java.util.List;
 
 /**
  * @author hlx

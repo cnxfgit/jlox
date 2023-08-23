@@ -11,9 +11,9 @@ public class ObjClosure implements Obj {
 
     private final ObjFunction function;
 
-    private List<ObjUpvalue> upvalues;
+    private final List<ObjUpvalue> upvalues;
 
-    private int upvalueCount;
+    private final int upvalueCount;
 
     public ObjClosure(ObjFunction function) {
         this.function = function;
@@ -42,15 +42,8 @@ public class ObjClosure implements Obj {
         return upvalues;
     }
 
-    public void setUpvalues(List<ObjUpvalue> upvalues) {
-        this.upvalues = upvalues;
-    }
-
     public int getUpvalueCount() {
         return upvalueCount;
     }
 
-    public void setUpvalueCount(int upvalueCount) {
-        this.upvalueCount = upvalueCount;
-    }
 }
