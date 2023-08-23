@@ -12,7 +12,5 @@ public class Parser {
     public boolean hadError;
     public boolean panicMode;
 
-    public Parser() {
-
-    }
+    public Parser() {}
 }

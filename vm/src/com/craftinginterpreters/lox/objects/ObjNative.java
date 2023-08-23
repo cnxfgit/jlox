@@ -6,7 +6,7 @@ package com.craftinginterpreters.lox.objects;
  */
 public class ObjNative implements Obj{
 
-    public NativeFn function;
+    private NativeFn function;
 
     @Override
     public ObjType getType() {
@@ -16,5 +16,13 @@ public class ObjNative implements Obj{
     @Override
     public void print() {
         System.out.print("<native fn>");
+    }
+
+    public NativeFn getFunction() {
+        return function;
+    }
+
+    public void setFunction(NativeFn function) {
+        this.function = function;
     }
 }

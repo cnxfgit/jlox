@@ -12,9 +12,9 @@ import java.util.List;
  */
 public class Chunk {
 
-    public List<Byte> codes;
-    public List<Integer> lines;
-    public List<Value> constants;
+    private final List<Byte> codes;
+    private List<Integer> lines;
+    private List<Value> constants;
 
     public Chunk() {
         codes = new ArrayList<>();
@@ -34,4 +34,15 @@ public class Chunk {
         this.lines.add(line);
     }
 
+    public List<Byte> getCodes() {
+        return codes;
+    }
+
+    public List<Integer> getLines() {
+        return lines;
+    }
+
+    public List<Value> getConstants() {
+        return constants;
+    }
 }

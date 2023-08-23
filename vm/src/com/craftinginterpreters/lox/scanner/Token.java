@@ -24,6 +24,7 @@ public class Token {
         this.message = message;
     }
 
+    // Error Token
     public Token(String message, int line){
         this.type = TokenType.ERROR;
         this.message = message;

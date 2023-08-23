@@ -10,11 +10,11 @@ import java.util.List;
  */
 public class ObjUpvalue implements Obj {
 
-    public int location;
+    private int location;
 
-    public Value closed;
+    private Value closed;
 
-    public ObjUpvalue next;
+    private ObjUpvalue next;
 
     public ObjUpvalue(int location) {
         this.closed = new Value();
@@ -22,9 +22,7 @@ public class ObjUpvalue implements Obj {
         this.next = null;
     }
 
-    public ObjUpvalue(){
-
-    }
+    public ObjUpvalue(){}
 
     @Override
     public ObjType getType() {
@@ -34,5 +32,29 @@ public class ObjUpvalue implements Obj {
     @Override
     public void print() {
         System.out.print("upvalue");
+    }
+
+    public int getLocation() {
+        return location;
+    }
+
+    public void setLocation(int location) {
+        this.location = location;
+    }
+
+    public Value getClosed() {
+        return closed;
+    }
+
+    public void setClosed(Value closed) {
+        this.closed = closed;
+    }
+
+    public ObjUpvalue getNext() {
+        return next;
+    }
+
+    public void setNext(ObjUpvalue next) {
+        this.next = next;
     }
 }

@@ -12,14 +12,35 @@ import java.util.List;
  */
 public class CallFrame {
 
-    public ObjClosure closure;
+    private ObjClosure closure;
 
-    public int ip;
+    private int ip;
 
-    public int slots;
+    private int slots;
 
-    public CallFrame(){
+    public CallFrame(){}
 
+    public ObjClosure getClosure() {
+        return closure;
     }
 
+    public void setClosure(ObjClosure closure) {
+        this.closure = closure;
+    }
+
+    public int getIp() {
+        return ip;
+    }
+
+    public void setIp(int ip) {
+        this.ip = ip;
+    }
+
+    public int getSlots() {
+        return slots;
+    }
+
+    public void setSlots(int slots) {
+        this.slots = slots;
+    }
 }

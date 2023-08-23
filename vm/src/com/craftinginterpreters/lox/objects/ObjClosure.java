@@ -9,15 +9,15 @@ import java.util.List;
  */
 public class ObjClosure implements Obj {
 
-    public final ObjFunction function;
+    private final ObjFunction function;
 
-    public List<ObjUpvalue> upvalues;
+    private List<ObjUpvalue> upvalues;
 
-    public int upvalueCount;
+    private int upvalueCount;
 
     public ObjClosure(ObjFunction function) {
         this.function = function;
-        this.upvalueCount = function.upvalueCount;
+        this.upvalueCount = function.getUpvalueCount();
         this.upvalues = new ArrayList<>();
         for (int i = 0; i < upvalueCount; i++) {
             this.upvalues.add(new ObjUpvalue());
@@ -34,4 +34,23 @@ public class ObjClosure implements Obj {
         this.function.print();
     }
 
+    public ObjFunction getFunction() {
+        return function;
+    }
+
+    public List<ObjUpvalue> getUpvalues() {
+        return upvalues;
+    }
+
+    public void setUpvalues(List<ObjUpvalue> upvalues) {
+        this.upvalues = upvalues;
+    }
+
+    public int getUpvalueCount() {
+        return upvalueCount;
+    }
+
+    public void setUpvalueCount(int upvalueCount) {
+        this.upvalueCount = upvalueCount;
+    }
 }

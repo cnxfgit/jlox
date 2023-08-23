@@ -14,7 +14,15 @@ public class Value {
 
     private Double number;
 
-    public Obj obj;
+    private Obj obj;
+
+    public Obj getObj() {
+        return obj;
+    }
+
+    public void setObj(Obj obj) {
+        this.obj = obj;
+    }
 
     public Value(ValueType type, Obj obj) {
         this.type = type;

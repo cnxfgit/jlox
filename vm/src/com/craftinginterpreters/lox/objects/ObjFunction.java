@@ -8,10 +8,10 @@ import com.craftinginterpreters.lox.chunk.Chunk;
  */
 public class ObjFunction implements Obj {
 
-    public int arity;
-    public int upvalueCount;
-    public Chunk chunk;
-    public ObjString name;
+    private int arity;
+    private int upvalueCount;
+    private Chunk chunk;
+    private ObjString name;
 
     @Override
     public ObjType getType() {
@@ -34,5 +34,35 @@ public class ObjFunction implements Obj {
         this.chunk = new Chunk();
     }
 
+    public int getArity() {
+        return arity;
+    }
 
+    public void setArity(int arity) {
+        this.arity = arity;
+    }
+
+    public int getUpvalueCount() {
+        return upvalueCount;
+    }
+
+    public void setUpvalueCount(int upvalueCount) {
+        this.upvalueCount = upvalueCount;
+    }
+
+    public Chunk getChunk() {
+        return chunk;
+    }
+
+    public void setChunk(Chunk chunk) {
+        this.chunk = chunk;
+    }
+
+    public ObjString getName() {
+        return name;
+    }
+
+    public void setName(ObjString name) {
+        this.name = name;
+    }
 }

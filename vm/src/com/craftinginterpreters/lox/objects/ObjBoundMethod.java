@@ -8,9 +8,9 @@ import com.craftinginterpreters.lox.value.Value;
  */
 public class ObjBoundMethod implements Obj {
 
-    public Value receiver;
+    private Value receiver;
 
-    public ObjClosure method;
+    private ObjClosure method;
 
     public ObjBoundMethod(Value receiver, ObjClosure method) {
         this.receiver = receiver;
@@ -24,6 +24,22 @@ public class ObjBoundMethod implements Obj {
 
     @Override
     public void print() {
-        this.method.function.print();
+        this.method.getFunction().print();
+    }
+
+    public Value getReceiver() {
+        return receiver;
+    }
+
+    public void setReceiver(Value receiver) {
+        this.receiver = receiver;
+    }
+
+    public ObjClosure getMethod() {
+        return method;
+    }
+
+    public void setMethod(ObjClosure method) {
+        this.method = method;
     }
 }

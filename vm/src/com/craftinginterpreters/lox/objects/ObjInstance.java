@@ -11,9 +11,9 @@ import java.util.Map;
  */
 public class ObjInstance implements Obj {
 
-    public ObjClass klass;
+    private ObjClass klass;
 
-    public Map<ObjString, Value> fields;
+    private Map<ObjString, Value> fields;
 
     public ObjInstance(ObjClass klass){
         this.klass = klass;
@@ -27,6 +27,22 @@ public class ObjInstance implements Obj {
 
     @Override
     public void print() {
-        System.out.printf("%s instance", this.klass.name);
+        System.out.printf("%s instance", this.klass.getName());
+    }
+
+    public ObjClass getKlass() {
+        return klass;
+    }
+
+    public void setKlass(ObjClass klass) {
+        this.klass = klass;
+    }
+
+    public Map<ObjString, Value> getFields() {
+        return fields;
+    }
+
+    public void setFields(Map<ObjString, Value> fields) {
+        this.fields = fields;
     }
 }

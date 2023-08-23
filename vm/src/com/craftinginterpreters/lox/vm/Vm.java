@@ -84,21 +84,21 @@ public class Vm {
 
         for (int i = this.frameCount - 1; i >= 0; i--) {
             CallFrame frame = this.frames[i];
-            ObjFunction function = frame.closure.function;
-            int instruction = frame.ip - 1;
-            System.err.printf("[line %d] in ", function.chunk.lines.get(instruction));
-            if (function.name == null) {
+            ObjFunction function = frame.getClosure().getFunction();
+            int instruction = frame.getIp() - 1;
+            System.err.printf("[line %d] in ", function.getChunk().getLines().get(instruction));
+            if (function.getName() == null) {
                 System.err.print("script\n");
             } else {
-                System.err.printf("%s()\n", function.name);
+                System.err.printf("%s()\n", function.getName());
             }
         }
         resetStack();
     }
 
     private boolean call(ObjClosure closure, int argCount) {
-        if (argCount != closure.function.arity) {
-            runtimeError("Expected %d arguments but got %d.", closure.function.arity, argCount);
+        if (argCount != closure.getFunction().getArity()) {
+            runtimeError("Expected %d arguments but got %d.", closure.getFunction().getArity(), argCount);
             return false;
         }
         // 调用栈过长
@@ -108,31 +108,33 @@ public class Vm {
         }
         // 记录新函数栈帧
         CallFrame frame = this.frames[this.frameCount++];
-        frame.closure = closure;
+        frame.setClosure(closure);
 
-        frame.ip = 0;
-        frame.slots = this.stackTop - argCount - 1;
+        frame.setIp(0);
+        frame.setSlots(this.stackTop - argCount - 1);
         return true;
     }
 
     private byte readByte(CallFrame frame) {
-        List<Byte> codes = frame.closure.function.chunk.codes;
-        return codes.get(frame.ip++);
+        List<Byte> codes = frame.getClosure().getFunction().getChunk().getCodes();
+        int index = frame.getIp();
+        frame.setIp(index + 1);
+        return codes.get(index);
     }
 
     private short readShort(CallFrame frame) {
-        List<Byte> codes = frame.closure.function.chunk.codes;
-        frame.ip += 2;
-        return (short) ((codes.get(frame.ip - 2) << 8) | codes.get(frame.ip - 1));
+        List<Byte> codes = frame.getClosure().getFunction().getChunk().getCodes();
+        frame.setIp(frame.getIp() + 2);
+        return (short) ((codes.get(frame.getIp() - 2) << 8) | codes.get(frame.getIp() - 1));
     }
 
     private Value readConstant(CallFrame frame) {
-        List<Value> constants = frame.closure.function.chunk.constants;
+        List<Value> constants = frame.getClosure().getFunction().getChunk().getConstants();
         return constants.get(readByte(frame));
     }
 
     private ObjString readString(CallFrame frame) {
-        return (ObjString) readConstant(frame).obj;
+        return (ObjString) readConstant(frame).getObj();
     }
 
     private void binaryOp(ValueType type, String op) throws Exception {
@@ -178,7 +180,7 @@ public class Vm {
                     System.out.print(" ]");
                 }
                 System.out.println();
-                Debug.disassembleInstruction(frame.closure.function.chunk, frame.ip);
+                Debug.disassembleInstruction(frame.getClosure().getFunction().getChunk(), frame.getIp());
             }
 
             byte instruction = readByte(frame);
@@ -202,12 +204,12 @@ public class Vm {
                     break;
                 case GET_LOCAL: {
                     byte slot = readByte(frame);
-                    push(this.stack[frame.slots + slot]);
+                    push(this.stack[frame.getSlots() + slot]);
                     break;
                 }
                 case SET_LOCAL: {
                     byte slot = readByte(frame);
-                    this.stack[frame.slots + slot] = peek(0);
+                    this.stack[frame.getSlots() + slot] = peek(0);
                     break;
                 }
                 case GET_GLOBAL: {
@@ -238,13 +240,13 @@ public class Vm {
                 }
                 case GET_UPVALUE: {
                     byte slot = readByte(frame);
-                    push(frame.closure.upvalues.get(slot).closed);
+                    push(frame.getClosure().getUpvalues().get(slot).getClosed());
                     break;
                 }
                 case SET_UPVALUE: {
                     byte slot = readByte(frame);
-                    frame.closure.upvalues.get(slot).location = this.stackTop - 1;
-                    frame.closure.upvalues.get(slot).closed = this.stack[this.stackTop - 1];
+                    frame.getClosure().getUpvalues().get(slot).setLocation(this.stackTop - 1);
+                    frame.getClosure().getUpvalues().get(slot).setClosed(this.stack[this.stackTop - 1]);
                     break;
                 }
                 case GET_PROPERTY: {
@@ -256,7 +258,7 @@ public class Vm {
                     ObjInstance instance = peek(0).asInstance();
                     ObjString name = readString(frame);
 
-                    Value value = instance.fields.get(name);
+                    Value value = instance.getFields().get(name);
 
                     if (value != null) {
                         pop(); // Instance.
@@ -264,7 +266,7 @@ public class Vm {
                         break;
                     }
 
-                    if (!bindMethod(instance.klass, name)) {
+                    if (!bindMethod(instance.getKlass(), name)) {
                         return InterpretResult.RUNTIME_ERROR;
                     }
                     break;
@@ -276,7 +278,7 @@ public class Vm {
                     }
 
                     ObjInstance instance = peek(1).asInstance();
-                    instance.fields.put(readString(frame), peek(0));
+                    instance.getFields().put(readString(frame), peek(0));
                     Value value = pop();
                     pop();
                     push(value);
@@ -362,17 +364,17 @@ public class Vm {
                 }
                 case JUMP: {
                     short offset = readShort(frame);
-                    frame.ip += offset;
+                    frame.setIp(frame.getIp() + offset);
                     break;
                 }
                 case JUMP_IF_FALSE: {
                     short offset = readShort(frame);
-                    if (isFalsey(peek(0))) frame.ip += offset;
+                    if (isFalsey(peek(0))) frame.setIp(frame.getIp() + offset);
                     break;
                 }
                 case LOOP: {
                     short offset = readShort(frame);
-                    frame.ip -= offset;
+                    frame.setIp(frame.getIp()- offset);
                     break;
                 }
                 case CALL: {
@@ -407,13 +409,13 @@ public class Vm {
                     ObjFunction function = readConstant(frame).asFunction();
                     ObjClosure closure = new ObjClosure(function);
                     push(closure.toValue());
-                    for (int i = 0; i < closure.upvalueCount; i++) {
+                    for (int i = 0; i < closure.getUpvalueCount(); i++) {
                         byte isLocal = readByte(frame);
                         byte index = readByte(frame);
                         if (isLocal != 0) {
-                            closure.upvalues.set(i, captureUpvalue(frame.slots + index));
+                            closure.getUpvalues().set(i, captureUpvalue(frame.getSlots() + index));
                         } else {
-                            closure.upvalues.set(i, frame.closure.upvalues.get(index));
+                            closure.getUpvalues().set(i, frame.getClosure().getUpvalues().get(index));
                         }
                     }
                     break;
@@ -424,14 +426,14 @@ public class Vm {
                     break;
                 case RETURN: {
                     Value result = pop();
-                    closeUpvalues(frame.slots);
+                    closeUpvalues(frame.getSlots());
                     this.frameCount--;
                     if (this.frameCount == 0) {
                         pop();
                         return InterpretResult.OK;
                     }
 
-                    this.stackTop = frame.slots;
+                    this.stackTop = frame.getSlots();
                     push(result);
                     frame = this.frames[this.frameCount - 1];
                     break;
@@ -447,7 +449,7 @@ public class Vm {
                     }
 
                     ObjClass subclass = peek(0).asClass();
-                    subclass.methods.putAll(superclass.asClass().methods);
+                    subclass.getMethods().putAll(superclass.asClass().getMethods());
                     pop(); // Subclass.
                     break;
                 }
@@ -461,38 +463,38 @@ public class Vm {
     private void defineMethod(ObjString name) {
         Value method = peek(0);
         ObjClass klass = peek(1).asClass();
-        klass.methods.put(name, method);
+        klass.getMethods().put(name, method);
         pop();
     }
 
     private void closeUpvalues(int last) {
-        while (this.openUpvalues != null && this.openUpvalues.location >= last) {
+        while (this.openUpvalues != null && this.openUpvalues.getLocation() >= last) {
             ObjUpvalue upvalue = this.openUpvalues;
-            upvalue.closed = this.stack[upvalue.location];
-            this.openUpvalues = upvalue.next;
+            upvalue.setClosed(this.stack[upvalue.getLocation()]);
+            this.openUpvalues = upvalue.getNext();
         }
     }
 
     private ObjUpvalue captureUpvalue(int local) {
         ObjUpvalue prevUpvalue = null;
         ObjUpvalue upvalue = this.openUpvalues;
-        while (upvalue != null && upvalue.location > local) {
+        while (upvalue != null && upvalue.getLocation() > local) {
             prevUpvalue = upvalue;
-            upvalue = upvalue.next;
+            upvalue = upvalue.getNext();
         }
 
-        if (upvalue != null && upvalue.location == local) {
+        if (upvalue != null && upvalue.getLocation() == local) {
             return upvalue;
         }
 
         ObjUpvalue createdUpvalue = new ObjUpvalue(local);
 
-        createdUpvalue.next = upvalue;
+        createdUpvalue.setNext(upvalue);
 
         if (prevUpvalue == null) {
             this.openUpvalues = createdUpvalue;
         } else {
-            prevUpvalue.next = createdUpvalue;
+            prevUpvalue.setNext(createdUpvalue);
         }
 
         return createdUpvalue;
@@ -500,7 +502,7 @@ public class Vm {
 
 
     private boolean invokeFromClass(ObjClass klass, ObjString name, int argCount) {
-        Value method = klass.methods.get(name);
+        Value method = klass.getMethods().get(name);
         if (method == null) {
             runtimeError("Undefined property '%s'.", name);
             return false;
@@ -519,28 +521,28 @@ public class Vm {
         ObjInstance instance = receiver.asInstance();
 
 
-        Value value = instance.fields.get(name);
+        Value value = instance.getFields().get(name);
 
         if (value != null) {
             this.stack[stackTop - argCount - 1] = value;
             return callValue(value, argCount);
         }
 
-        return invokeFromClass(instance.klass, name, argCount);
+        return invokeFromClass(instance.getKlass(), name, argCount);
     }
 
     private boolean callValue(Value callee, int argCount) {
         if (callee.isObj()) {
-            switch (callee.obj.getType()) {
+            switch (callee.getObj().getType()) {
                 case BOUND_METHOD: {
                     ObjBoundMethod bound = callee.asBoundMethod();
-                    this.stack[stackTop - argCount - 1] = bound.receiver;
-                    return call(bound.method, argCount);
+                    this.stack[stackTop - argCount - 1] = bound.getReceiver();
+                    return call(bound.getMethod(), argCount);
                 }
                 case CLASS: {
                     ObjClass klass = callee.asClass();
                     this.stack[stackTop - argCount - 1] = new ObjInstance(klass).toValue();
-                    Value initializer = klass.methods.get(new ObjString(initString));
+                    Value initializer = klass.getMethods().get(new ObjString(initString));
                     if (initializer != null) {
                         return call(initializer.asClosure(), argCount);
                     } else if (argCount != 0) {
@@ -552,7 +554,7 @@ public class Vm {
                 case CLOSURE:
                     return call(callee.asClosure(), argCount);
                 case NATIVE: {
-                    NativeFn nativefn = callee.asNative().function;
+                    NativeFn nativefn = callee.asNative().getFunction();
                     Value result = nativefn.call(argCount, this.stackTop - argCount);
                     this.stackTop -= argCount + 1;
                     push(result);
@@ -583,7 +585,7 @@ public class Vm {
     }
 
     private boolean bindMethod(ObjClass klass, ObjString name) {
-        Value method = klass.methods.get(name);
+        Value method = klass.getMethods().get(name);
         if (method == null) {
             runtimeError("Undefined property '%s'.", name);
             return false;

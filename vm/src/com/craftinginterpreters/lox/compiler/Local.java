@@ -8,11 +8,11 @@ import com.craftinginterpreters.lox.scanner.Token;
  */
 public class Local {
 
-    Token name;
+    private Token name;
 
-    int depth;
+    private int depth;
 
-    boolean isCaptured;
+    private boolean isCaptured;
 
     public Local(int depth, boolean isCaptured) {
         this.name = null;
@@ -20,4 +20,27 @@ public class Local {
         this.isCaptured = isCaptured;
     }
 
+    public Token getName() {
+        return name;
+    }
+
+    public int getDepth() {
+        return depth;
+    }
+
+    public boolean isCaptured() {
+        return isCaptured;
+    }
+
+    public void setName(Token name) {
+        this.name = name;
+    }
+
+    public void setCaptured(boolean captured) {
+        isCaptured = captured;
+    }
+
+    public void setDepth(int depth) {
+        this.depth = depth;
+    }
 }

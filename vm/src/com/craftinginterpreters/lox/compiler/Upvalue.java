@@ -6,13 +6,25 @@ package com.craftinginterpreters.lox.compiler;
  */
 public class Upvalue {
 
+    private byte index;
 
-    byte index;
+    private boolean isLocal;
 
-    boolean isLocal;
+    public Upvalue() {}
 
-    public Upvalue() {
-
+    public byte getIndex() {
+        return index;
     }
 
+    public boolean isLocal() {
+        return isLocal;
+    }
+
+    public void setIndex(byte index) {
+        this.index = index;
+    }
+
+    public void setLocal(boolean local) {
+        isLocal = local;
+    }
 }

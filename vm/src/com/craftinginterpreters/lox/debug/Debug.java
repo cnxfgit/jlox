@@ -16,7 +16,7 @@ public class Debug {
         System.out.printf("== %s ==\n", name); // 打印字节码块名
 
         // 遍历字节码块中的字节码
-        for (int offset = 0; offset < chunk.codes.size(); ) {
+        for (int offset = 0; offset < chunk.getCodes().size(); ) {
             offset = disassembleInstruction(chunk, offset);
         }
     }
@@ -24,14 +24,14 @@ public class Debug {
     public static int disassembleInstruction(Chunk chunk, int offset) {
         System.out.printf("%04d ", offset);    // 字节码偏移量
         // 行号打印
-        if (offset > 0 && Objects.equals(chunk.lines.get(offset), chunk.lines.get(offset - 1))) {
+        if (offset > 0 && Objects.equals(chunk.getLines().get(offset), chunk.getLines().get(offset - 1))) {
             System.out.print("   | ");
         } else {
-            System.out.printf("%4d ", chunk.lines.get(offset));
+            System.out.printf("%4d ", chunk.getLines().get(offset));
         }
 
         // 反汇编当前字节码
-        OpCode instruction = OpCode.intOf((int) chunk.codes.get(offset));
+        OpCode instruction = OpCode.intOf((int) chunk.getCodes().get(offset));
         switch (instruction) {
             case CONSTANT:
                 return constantInstruction("CONSTANT", chunk, offset);
@@ -97,15 +97,15 @@ public class Debug {
                 return invokeInstruction("SUPER_INVOKE", chunk, offset);
             case CLOSURE: {
                 offset++;
-                byte constant = chunk.codes.get(offset++);
+                byte constant = chunk.getCodes().get(offset++);
                 System.out.printf("%-16s %4d ", "CLOSURE", constant);
-                chunk.constants.get(constant).print();
+                chunk.getConstants().get(constant).print();
                 System.out.println();
 
-                ObjFunction function = (ObjFunction) chunk.constants.get(constant).obj;
-                for (int j = 0; j < function.upvalueCount; j++) {
-                    int isLocal = chunk.codes.get(offset++);
-                    int index = chunk.codes.get(offset++);
+                ObjFunction function = (ObjFunction) chunk.getConstants().get(constant).getObj();
+                for (int j = 0; j < function.getUpvalueCount(); j++) {
+                    int isLocal = chunk.getCodes().get(offset++);
+                    int index = chunk.getCodes().get(offset++);
                     System.out.printf("%04d      |                     %s %d\n",
                             offset - 2, isLocal != 0 ? "local" : "upvalue", index);
                 }
@@ -129,9 +129,9 @@ public class Debug {
     }
 
     private static int constantInstruction(String name, Chunk chunk, int offset) {
-        byte constant = chunk.codes.get(offset + 1);
+        byte constant = chunk.getCodes().get(offset + 1);
         System.out.printf("%-16s %4d '", name, constant);
-        chunk.constants.get(constant).print();
+        chunk.getConstants().get(constant).print();
         System.out.println();
         return offset + 2;
     }
@@ -142,23 +142,23 @@ public class Debug {
     }
 
     private static int byteInstruction(String name, Chunk chunk, int offset) {
-        byte slot = chunk.codes.get(offset + 1);
+        byte slot = chunk.getCodes().get(offset + 1);
         System.out.printf("%-16s %4d\n", name, slot);
         return offset + 2;
     }
 
     private static int jumpInstruction(String name, int sign, Chunk chunk, int offset) {
-        short jump = (short) (chunk.codes.get(offset + 1) << 8);
-        jump |= chunk.codes.get(offset + 2);
+        short jump = (short) (chunk.getCodes().get(offset + 1) << 8);
+        jump |= chunk.getCodes().get(offset + 2);
         System.out.printf("%-16s %4d -> %d\n", name, offset, offset + 3 + sign * jump);
         return offset + 3;
     }
 
     private static int invokeInstruction(String name, Chunk chunk, int offset) {
-        byte constant = chunk.codes.get(offset + 1);
-        byte argCount = chunk.codes.get(offset + 2);
+        byte constant = chunk.getCodes().get(offset + 1);
+        byte argCount = chunk.getCodes().get(offset + 2);
         System.out.printf("%-16s (%d args) %4d '", name, argCount, constant);
-        chunk.constants.get(constant).print();
+        chunk.getConstants().get(constant).print();
         System.out.print("'\n");
         return offset + 3;
     }

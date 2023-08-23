@@ -9,9 +9,9 @@ import com.craftinginterpreters.lox.compiler.Precedence;
  */
 public class ParseRule {
 
-    ParseFn prefix;         // 前缀
-    ParseFn infix;          // 中缀
-    Precedence precedence;  // 优先级
+    private final ParseFn prefix;         // 前缀
+    private final ParseFn infix;          // 中缀
+    private final Precedence precedence;  // 优先级
 
     public ParseRule(ParseFn prefix, ParseFn infix, Precedence precedence) {
         this.prefix = prefix;
@@ -19,4 +19,15 @@ public class ParseRule {
         this.precedence = precedence;
     }
 
+    public ParseFn getPrefix() {
+        return prefix;
+    }
+
+    public ParseFn getInfix() {
+        return infix;
+    }
+
+    public Precedence getPrecedence() {
+        return precedence;
+    }
 }

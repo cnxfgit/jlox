@@ -20,7 +20,7 @@ import com.craftinginterpreters.lox.value.ValueType;
  */
 public class Compiler {
 
-    static Compiler current = null;
+    public static Compiler current = null;
 
     public static Parser parser = new Parser();
 
@@ -107,20 +107,20 @@ public class Compiler {
         current = this;
 
         if (type != FunctionType.SCRIPT) {
-            current.function.name = ObjString.copyString(parser.previous.message);
+            current.function.setName(ObjString.copyString(parser.previous.message));
         }
 
         Local local = new Local(0, false);
         current.locals[current.localCount++] = local;
         if (type != FunctionType.FUNCTION) {
-            local.name = new Token(TokenType.IDENTIFIER, 0, 4, 0, "this");
+            local.setName(new Token(TokenType.IDENTIFIER, 0, 4, 0, "this"));
         } else {
-            local.name = new Token(TokenType.IDENTIFIER, 0, 0, 0, "");
+            local.setName(new Token(TokenType.IDENTIFIER, 0, 0, 0, ""));
         }
     }
 
     private static Chunk currentChunk() {
-        return current.function.chunk;
+        return current.function.getChunk();
     }
 
 
@@ -186,7 +186,7 @@ public class Compiler {
     private void emitLoop(int loopStart) {
         emitByte(OpCode.LOOP);
 
-        int offset = currentChunk().codes.size() - loopStart + 2;
+        int offset = currentChunk().getCodes().size() - loopStart + 2;
         if (offset > Short.MAX_VALUE) error("Loop body too large.");
 
         emitByte((byte) ((offset >> 8) & 0xff));
@@ -200,7 +200,7 @@ public class Compiler {
 
     private void patchJump(int offset) {
         // -offset得到 字节指令的位置  -2 再得到then语句的位置
-        int jump = currentChunk().codes.size() - offset - 2;
+        int jump = currentChunk().getCodes().size() - offset - 2;
 
         // 最大只能跳转两个字节的字节码
         if (jump > Short.MAX_VALUE) {
@@ -208,8 +208,8 @@ public class Compiler {
         }
 
         // 回写需要跳过的大小
-        currentChunk().codes.set(offset, (byte) ((jump >> 8) & 0xff));
-        currentChunk().codes.set(offset + 1, (byte) (jump & 0xff));
+        currentChunk().getCodes().set(offset, (byte) ((jump >> 8) & 0xff));
+        currentChunk().getCodes().set(offset + 1, (byte) (jump & 0xff));
     }
 
     private void emitReturn() {
@@ -225,7 +225,7 @@ public class Compiler {
         emitByte(instruction);
         emitByte((byte) 0xff);
         emitByte((byte) 0xff);
-        return currentChunk().codes.size() - 2;
+        return currentChunk().getCodes().size() - 2;
     }
 
     public ObjFunction compile() {
@@ -350,7 +350,7 @@ public class Compiler {
             expressionStatement();
         }
         // 循环起点
-        int loopStart = currentChunk().codes.size();
+        int loopStart = currentChunk().getCodes().size();
         // for的第二语句  表达式语句
         int exitJump = -1;
         if (!match(TokenType.SEMICOLON)) {
@@ -365,7 +365,7 @@ public class Compiler {
         // for的第三语句 增量子句
         if (!match(TokenType.RIGHT_PAREN)) {
             int bodyJump = emitJump(OpCode.JUMP);
-            int incrementStart = currentChunk().codes.size();
+            int incrementStart = currentChunk().getCodes().size();
             expression();
             emitByte(OpCode.POP);
             consume(TokenType.RIGHT_PAREN, "Expect ')' after for clauses.");
@@ -443,7 +443,7 @@ public class Compiler {
 
     private void whileStatement() {
         // 循环起点
-        int loopStart = currentChunk().codes.size();
+        int loopStart = currentChunk().getCodes().size();
         consume(TokenType.LEFT_PAREN, "Expect '(' after 'while'.");
         expression();
         consume(TokenType.RIGHT_PAREN, "Expect ')' after condition.");
@@ -474,9 +474,9 @@ public class Compiler {
         }
 
         Local local = current.locals[current.localCount++];
-        local.name = name;
-        local.depth = -1;
-        local.isCaptured = false;
+        local.setName(name);
+        local.setDepth(-1);
+        local.setCaptured(false);
     }
 
     private void declareVariable() {
@@ -486,11 +486,11 @@ public class Compiler {
 
         for (int i = current.localCount - 1; i >= 0; i--) {
             Local local = current.locals[i];
-            if (local.depth != -1 && local.depth < current.scopeDepth) {
+            if (local.getDepth() != -1 && local.getDepth() < current.scopeDepth) {
                 break;
             }
 
-            if (identifiersEqual(name, local.name)) {
+            if (identifiersEqual(name, local.getName())) {
                 error("Already a variable with this name in this scope.");
             }
         }
@@ -508,7 +508,7 @@ public class Compiler {
 
     private void markInitialized() {
         if (current.scopeDepth == 0) return;
-        current.locals[current.localCount - 1].depth = current.scopeDepth;
+        current.locals[current.localCount - 1].setDepth(current.scopeDepth);
     }
 
 
@@ -538,8 +538,8 @@ public class Compiler {
     private int resolveLocal(Compiler compiler, Token name) {
         for (int i = compiler.localCount - 1; i >= 0; i--) {
             Local local = compiler.locals[i];
-            if (identifiersEqual(name, local.name)) {
-                if (local.depth == -1) {
+            if (identifiersEqual(name, local.getName())) {
+                if (local.getDepth() == -1) {
                     error("Can't read local variable in its own initializer.");
                 }
                 return i;
@@ -550,11 +550,11 @@ public class Compiler {
     }
 
     private int addUpvalue(Compiler compiler, byte index, boolean isLocal) {
-        int upvalueCount = compiler.function.upvalueCount;
+        int upvalueCount = compiler.function.getUpvalueCount();
 
         for (int i = 0; i < upvalueCount; i++) {
             Upvalue upvalue = compiler.upvalues[i];
-            if (upvalue.index == index && upvalue.isLocal == isLocal) {
+            if (upvalue.getIndex() == index && upvalue.isLocal() == isLocal) {
                 return i;
             }
         }
@@ -564,16 +564,17 @@ public class Compiler {
             return 0;
         }
 
-        compiler.upvalues[upvalueCount].isLocal = isLocal;
-        compiler.upvalues[upvalueCount].index = index;
-        return compiler.function.upvalueCount++;
+        compiler.upvalues[upvalueCount].setLocal(isLocal);
+        compiler.upvalues[upvalueCount].setIndex(index);
+        compiler.function.setUpvalueCount(upvalueCount + 1);
+        return upvalueCount;
     }
 
     private int resolveUpvalue(Compiler compiler, Token name) {
         if (compiler.enclosing == null) return -1;
         int local = resolveLocal(compiler.enclosing, name);
         if (local != -1) {
-            compiler.enclosing.locals[local].isCaptured = true;
+            compiler.enclosing.locals[local].setCaptured(true);
             return addUpvalue(compiler, (byte) local, true);
         }
 
@@ -624,8 +625,8 @@ public class Compiler {
 
         if (Lox.DEBUG_PRINT_CODE) {
             if (!parser.hadError) {
-                Debug.disassembleChunk(currentChunk(), function.name != null
-                        ? function.name.getString() : "<script>");
+                Debug.disassembleChunk(currentChunk(), function.getName() != null
+                        ? function.getName().getString() : "<script>");
             }
         }
 
@@ -642,9 +643,9 @@ public class Compiler {
         current.scopeDepth--;
 
         while (current.localCount > 0 &&
-                current.locals[current.localCount - 1].depth > current.scopeDepth) {
+                current.locals[current.localCount - 1].getDepth() > current.scopeDepth) {
             // 被捕获的需要推送到闭包
-            if (current.locals[current.localCount - 1].isCaptured) {
+            if (current.locals[current.localCount - 1].isCaptured()) {
                 emitByte(OpCode.CLOSE_UPVALUE);
             } else {
                 emitByte(OpCode.POP);
@@ -668,8 +669,8 @@ public class Compiler {
         consume(TokenType.LEFT_PAREN, "Expect '(' after function name.");
         if (!check(TokenType.RIGHT_PAREN)) {
             do {
-                current.function.arity++;
-                if (current.function.arity > 255) {
+                current.function.setArity(current.function.getArity()+1);
+                if (current.function.getArity() > 255) {
                     errorAtCurrent("Can't have more than 255 parameters.");
                 }
                 byte constant = parseVariable("Expect parameter name.");
@@ -683,9 +684,9 @@ public class Compiler {
         ObjFunction function = endCompiler();
         emitBytes(OpCode.CLOSURE, makeConstant(function.toValue()));
 
-        for (int i = 0; i < function.upvalueCount; i++) {
-            emitByte((byte) (compiler.upvalues[i].isLocal ? 1 : 0));
-            emitByte(compiler.upvalues[i].index);
+        for (int i = 0; i < function.getUpvalueCount(); i++) {
+            emitByte((byte) (compiler.upvalues[i].isLocal() ? 1 : 0));
+            emitByte(compiler.upvalues[i].getIndex());
         }
     }
 
@@ -718,9 +719,6 @@ public class Compiler {
         defineVariable(nameConstant);
 
         ClassCompiler classCompiler = new ClassCompiler();
-        classCompiler.hasSuperclass = false;
-        classCompiler.enclosing = ClassCompiler.currentClass;
-        ClassCompiler.currentClass = classCompiler;
 
         if (match(TokenType.LESS)) {
             consume(TokenType.IDENTIFIER, "Expect superclass name.");
@@ -736,7 +734,7 @@ public class Compiler {
 
             namedVariable(className, false);
             emitByte(OpCode.INHERIT);
-            classCompiler.hasSuperclass = true;
+            classCompiler.setHasSuperclass(true);
         }
 
         namedVariable(className, false);
@@ -747,11 +745,11 @@ public class Compiler {
         consume(TokenType.RIGHT_BRACE, "Expect '}' after class body.");
         emitByte(OpCode.POP);
 
-        if (classCompiler.hasSuperclass) {
+        if (classCompiler.isHasSuperclass()) {
             endScope();
         }
 
-        ClassCompiler.currentClass = ClassCompiler.currentClass.enclosing;
+        ClassCompiler.currentClass = ClassCompiler.currentClass.getEnclosing();
     }
 
     private void varDeclaration() {
@@ -774,7 +772,7 @@ public class Compiler {
     private void parsePrecedence(Precedence precedence) {
         advance();
         // 获取上一格token的前缀表达式 为null的话错误
-        ParseFn prefixRule = getRule(parser.previous.type).prefix;
+        ParseFn prefixRule = getRule(parser.previous.type).getPrefix();
         if (prefixRule == null) {
             error("Expect expression.");
             return;
@@ -783,9 +781,9 @@ public class Compiler {
         boolean canAssign = precedence.ordinal() <= Precedence.ASSIGNMENT.ordinal();
         prefixRule.parseFn(canAssign);
         // 获取当前token优先级 比较传递进的优先级 传递小于等于当前的话 执行中缀表达式
-        while (precedence.ordinal() <= getRule(parser.current.type).precedence.ordinal()) {
+        while (precedence.ordinal() <= getRule(parser.current.type).getPrecedence().ordinal()) {
             advance();
-            ParseFn infixRule = getRule(parser.previous.type).infix;
+            ParseFn infixRule = getRule(parser.previous.type).getInfix();
             infixRule.parseFn(canAssign);
         }
 
@@ -815,7 +813,7 @@ public class Compiler {
         return (canAssign) -> {
             TokenType operatorType = parser.previous.type;
             ParseRule rule = getRule(operatorType);
-            parsePrecedence(rule.precedence.offset(1));
+            parsePrecedence(rule.getPrecedence().offset(1));
 
             switch (operatorType) {
                 case BANG_EQUAL:
@@ -948,7 +946,7 @@ public class Compiler {
         return (canAssign) -> {
             if (ClassCompiler.currentClass == null) {
                 error("Can't use 'super' outside of a class.");
-            } else if (!ClassCompiler.currentClass.hasSuperclass) {
+            } else if (!ClassCompiler.currentClass.isHasSuperclass()) {
                 error("Can't use 'super' in a class with no superclass.");
             }
 
