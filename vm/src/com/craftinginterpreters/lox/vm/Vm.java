@@ -57,7 +57,7 @@ public class Vm {
         this.initString = "init";
 
         defineNative("clock", (argCount, args) -> {
-            return new Value(ValueType.NUMBER, (double) System.currentTimeMillis());
+            return new Value(ValueType.NUMBER, System.currentTimeMillis());
         });
     }
 
@@ -529,7 +529,6 @@ public class Vm {
         }
 
         ObjInstance instance = receiver.asInstance();
-
 
         Value value = instance.getFields().get(name);
 

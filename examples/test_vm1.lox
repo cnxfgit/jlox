@@ -182,7 +182,7 @@ fun fib(n){
 }
 
 var start = clock();
-fib(30);
+fib(35);
 var end = clock();
 print "===";
 print end - start;
