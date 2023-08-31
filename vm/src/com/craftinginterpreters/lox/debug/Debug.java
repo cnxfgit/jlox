@@ -132,7 +132,7 @@ public class Debug {
         byte constant = chunk.getCodes().get(offset + 1);
         System.out.printf("%-16s %4d '", name, constant);
         chunk.getConstants().get(constant).print();
-        System.out.println();
+        System.out.print("'\n");
         return offset + 2;
     }
 

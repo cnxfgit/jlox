@@ -250,7 +250,8 @@ public class Vm {
                 }
                 case GET_UPVALUE: {
                     byte slot = readByte(frame);
-                    push(frame.getClosure().getUpvalues().get(slot).getClosed());
+                    int location = frame.getClosure().getUpvalues().get(slot).getLocation();
+                    push(this.stack[location]);
                     break;
                 }
                 case SET_UPVALUE: {

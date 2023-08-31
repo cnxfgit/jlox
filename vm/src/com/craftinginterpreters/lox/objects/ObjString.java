@@ -44,4 +44,9 @@ public class ObjString implements Obj {
     public String getString() {
         return string;
     }
+
+    @Override
+    public String toString() {
+        return string;
+    }
 }

@@ -18,7 +18,7 @@ public class Lox {
 
     public static Vm vm;
 
-    public static boolean DEBUG_PRINT_CODE = false;
+    public static boolean DEBUG_PRINT_CODE = true;
 
     public static boolean DEBUG_TRACE_EXECUTION = false;
 
