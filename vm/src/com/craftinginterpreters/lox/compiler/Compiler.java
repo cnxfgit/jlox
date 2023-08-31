@@ -267,7 +267,7 @@ public class Compiler {
         } else if (token.type == TokenType.ERROR) {
             // Nothing.
         } else {
-            System.err.printf(" at '%s'", message);
+            System.err.printf(" at \"%s\"", message);
         }
 
         System.err.printf(": %s\n", token.message);

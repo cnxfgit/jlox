@@ -80,7 +80,7 @@ public class Scanner {
     }
 
     private TokenType checkKeyword(String rest, TokenType type) {
-        if (rest.equals(source.substring(start, start + rest.length()))) {
+        if (rest.length() == current - start && rest.equals(source.substring(start, start + rest.length()))) {
             return type;
         }
         return TokenType.IDENTIFIER;
@@ -91,7 +91,7 @@ public class Scanner {
             case 'a':
                 return checkKeyword("and", TokenType.AND);
             case 'c':
-                return checkKeyword("lass", TokenType.CLASS);
+                return checkKeyword("class", TokenType.CLASS);
             case 'e':
                 return checkKeyword("else", TokenType.ELSE);
             case 'f':

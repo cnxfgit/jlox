@@ -1,3 +1,17 @@
+2 * (1+1) == 4;
+(2 > 1) == !false;
+1 - (2 * 3) < 4 == false;
+
+print "one";
+print true;
+print 2 + 1;
+
+var beverage = "espresso";
+
+print beverage; // "espresso".
+
+// print a; // Error
+var a = "too late!";
 
 var a;
 print a; // "nil".
@@ -45,7 +59,10 @@ volume = 0;
 }
 
 var global = "outside";
-
+{
+  var local = "inside";
+  print global + local;
+}
 
 var a = "global a";
 var b = "global b";
@@ -67,122 +84,287 @@ print a;
 print b;
 print c;
 
-var condition = true;
-if (condition) {
-    print "if statement";
-} else {
-    print "else statement";
-}
-
-condition = false;
-if (condition) {
-    print "if statement";
-} else {
-    print "else statement";
-}
-
-
-print "hi" or 2; // "hi".
-print nil or "yes"; // "yes".
-
-{
-  var i = 0;
-  while (i < 10) {
-    print i;
-    i = i + 1;
+fun chunk1(){
+  var condition = true;
+  if (condition) {
+      print "if statement";
+  } else {
+      print "else statement";
   }
-}
 
-var a = 0;
-var temp;
-
-for (var b = 1; a < 10000; b = temp + b) {
-  print a;
-  temp = a;
-  a = b;
-}
-
-fun add(a, b, c) {
-  print a + b + c;
-}
-
-// add(1, 2, 3, 4); // Too many.
-// add(1, 2);       // Too few.
+  condition = false;
+  if (condition) {
+      print "if statement";
+  } else {
+      print "else statement";
+  }
 
 
-fun count(n) {
-  if (n > 1) count(n - 1);
-  print n;
-}
+  print "hi" or 2; // "hi".
+  print nil or "yes"; // "yes".
 
-count(3);
+  {
+    var i = 0;
+    while (i < 10) {
+      print i;
+      i = i + 1;
+    }
+  }
 
-fun add(a, b, c) {
-  print a + b + c;
-}
+  var a = 0;
+  var temp;
 
-add(1, 2, 3);
+  for (var b = 1; a < 10000; b = temp + b) {
+    print a;
+    temp = a;
+    a = b;
+  }
 
-fun add(a, b) {
-  print a + b;
-}
+  fun add(a, b, c) {
+    print a + b + c;
+  }
 
-print add; // "<fn add>".
+  // add(1, 2, 3, 4); // Too many.
+  // add(1, 2);       // Too few.
 
-fun sayHi(first, last) {
-  print "Hi, " + first + " " + last + "!";
-}
-
-sayHi("Dear", "Reader");
-
-fun procedure() {
-  print "don't return anything";
-}
-
-var result = procedure();
-print result; // ?
-
-
-fun count(n) {
-  while (n < 100) {
-    if (n == 3) return n; // <--
+  fun count(n) {
+    if (n > 1) count(n - 1);
     print n;
-    n = n + 1;
-  }
-}
-
-count(1);
-
-fun fib(n) {
-  if (n <= 1) return n;
-  return fib(n - 2) + fib(n - 1);
-}
-
-for (var i = 0; i < 20; i = i + 1) {
-  print fib(i);
-}
-
-fun makeCounter() {
-  var i = 0;
-  fun count() {
-    i = i + 1;
-    print i;
   }
 
-  return count;
+  count(3);
 }
 
-var counter = makeCounter();
-counter(); // "1".
-counter(); // "2".
+chunk1();
 
-fun fib(n){
-  if (n < 2) return 1;
-  return fib(n-2) + fib(n - 1);
+
+fun chunk2(){
+  fun add1(a, b, c) {
+    print a + b + c;
+  }
+
+  add1(1, 2, 3);
+
+  fun add(a, b) {
+    print a + b;
+  }
+
+  print add; // "<fn add>".
+
+  fun sayHi(first, last) {
+    print "Hi, " + first + " " + last + "!";
+  }
+
+  sayHi("Dear", "Reader");
+
+  fun procedure() {
+    print "don't return anything";
+  }
+
+  var result = procedure();
+  print result; // ?
+
+
+  fun count(n) {
+    while (n < 100) {
+      if (n == 3) return n; // <--
+      print n;
+      n = n + 1;
+    }
+  }
+
+  count(1);
+
+  fun fib(n) {
+    if (n <= 1) return n;
+    return fib(n - 2) + fib(n - 1);
+  }
+
+  for (var i = 0; i < 20; i = i + 1) {
+    print fib(i);
+  }
+
+  fun makeCounter() {
+    var i = 0;
+    fun count() {
+      i = i + 1;
+      print i;
+    }
+
+    return count;
+  }
+
+  var counter = makeCounter();
+  counter(); // "1".
+  counter(); // "2".
+
+  var start = clock();
+  fib(20);
+  var end = clock();
+  print "===";
+  print end - start;
 }
 
-var start = clock();
-fib(35);
-var end = clock();
-print "===";
-print end - start;
+
+fun chunk3(){
+  class Breakfast {
+    cook() {
+      print "Eggs a-fryin'!";
+    }
+
+    serve(who) {
+      print "Enjoy your breakfast, " + who + ".";
+    }
+  }
+
+  class DevonshireCream {
+    serveOn() {
+      return "Scones";
+    }
+  }
+
+  print DevonshireCream; // Prints "DevonshireCream".
+
+  class Bagel {}
+  var bagel = Bagel();
+  print bagel; // Prints "Bagel instance".
+
+  class Box {}
+
+  fun notMethod(argument) {
+    print "called function with " + argument;
+  }
+
+
+  var box = Box();
+  box.function = notMethod;
+  box.function("argument");
+
+
+  class Person {
+    sayName() {
+      print this.name;
+    }
+  }
+
+  var jane = Person();
+  jane.name = "Jane";
+
+  var method = jane.sayName;
+  method(); // ?
+
+  var bill = Person();
+  bill.name = "Bill";
+
+  bill.sayName = jane.sayName;
+  bill.sayName(); // ?
+
+
+  class Bacon {
+    eat() {
+      print "Crunch crunch crunch!";
+    }
+  }
+
+  Bacon().eat(); // Prints "Crunch crunch crunch!".
+
+  class Egotist {
+    speak() {
+      print this;
+    }
+  }
+
+  var method1 = Egotist().speak;
+  method1();
+
+}
+
+chunk2();
+
+fun chunk3(){
+  class Cake {
+    taste() {
+      var adjective = "delicious";
+      print "The " + this.flavor + " cake is " + adjective + "!";
+    }
+  }
+
+  var cake = Cake();
+  cake.flavor = "German chocolate";
+  cake.taste(); // Prints "The German chocolate cake is delicious!".
+
+  class Thing {
+    getCallback() {
+      fun localFunction() {
+        print this;
+      }
+
+      return localFunction;
+    }
+  }
+
+  var callback = Thing().getCallback();
+  callback();
+
+  class Foo {
+    init() {
+      print this;
+    }
+  }
+
+  var foo = Foo();
+  print foo.init();
+
+  class Foo1 {
+    init() {
+      return;
+    }
+  }
+
+  class Doughnut {
+    cook() {
+      print "Fry until golden brown.";
+    }
+  }
+
+  class BostonCream < Doughnut {}
+
+  BostonCream().cook();
+
+  class Doughnut1 {
+    cook() {
+      print "Fry until golden brown.";
+    }
+  }
+
+  class BostonCream1 < Doughnut1 {
+    cook() {
+      super.cook();
+      print "Pipe full of custard and coat with chocolate.";
+    }
+  }
+
+  BostonCream1().cook();
+
+  class A {
+    method() {
+      print "A method";
+    }
+  }
+
+  class B < A {
+    method() {
+      print "B method";
+    }
+
+    test() {
+      super.method();
+    }
+  }
+
+  class C < B {}
+
+  C().test();
+}
+
+chunk3();
