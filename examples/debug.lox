@@ -1,13 +1,10 @@
-fun makeCounter() {
-    var i = 0;
-    fun count() {
-      i = i + 1;
-      print i;
-    }
+fun chunk1(){
+  fun count(n) {
+    if (n > 1) count(n - 1);
+    print n;
+  }
 
-    return count;
+  count(3);
 }
 
-var counter = makeCounter();
-counter(); // "1".
-counter(); // "2".
+chunk1();

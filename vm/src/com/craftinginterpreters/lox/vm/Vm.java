@@ -250,14 +250,20 @@ public class Vm {
                 }
                 case GET_UPVALUE: {
                     byte slot = readByte(frame);
-                    int location = frame.getClosure().getUpvalues().get(slot).getLocation();
-                    push(this.stack[location]);
+                    ObjUpvalue upvalue = frame.getClosure().getUpvalues().get(slot);
+                    int location = upvalue.getLocation();
+                    if (!upvalue.getClosed().isNil()) {
+                        push(upvalue.getClosed());
+                    } else {
+                        push(this.stack[location]);
+                    }
                     break;
                 }
                 case SET_UPVALUE: {
                     byte slot = readByte(frame);
-                    frame.getClosure().getUpvalues().get(slot).setLocation(this.stackTop - 1);
-                    frame.getClosure().getUpvalues().get(slot).setClosed(this.stack[this.stackTop - 1]);
+                    ObjUpvalue upvalue = frame.getClosure().getUpvalues().get(slot);
+                    upvalue.setLocation(this.stackTop - 1);
+                    upvalue.setClosed(this.stack[this.stackTop - 1]);
                     break;
                 }
                 case GET_PROPERTY: {
@@ -494,7 +500,7 @@ public class Vm {
             upvalue = upvalue.getNext();
         }
 
-        if (upvalue != null && upvalue.getLocation() == local) {
+        if (upvalue != null && upvalue.getClosed() == this.stack[local]) {
             return upvalue;
         }
 
